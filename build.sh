@@ -1,1 +1,2 @@
-g++ src/glad.cpp -Wall -o glad
+clear;
+g++ src/*.cpp -Wall -o glad
