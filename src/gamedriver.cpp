@@ -2,6 +2,7 @@
 #include "inputobject.hpp"
 #include "outputobject.hpp"
 #include "iodriver.hpp"
+#include "command.hpp"
 
 using namespace std;
 
@@ -15,10 +16,23 @@ void GameDriver::runGame() {
     // get some input from io driver
     InputObject in = this->io.getInput();
 
-
     // process input
-    string outputString = in.getValue();
-    
+    string outputString;
+    Command c = in.getCommand();
+
+    switch(c) {
+      case NEW_GLAD:
+	outputString = "New glad requested";
+      break;
+
+      case SHOW_ALL_GLADS:
+	outputString = "Show all glads requested";
+      break;
+
+      default:
+	outputString = "Huh?";
+    }
+
 
     // build output
     OutputObject out(outputString);
@@ -26,4 +40,6 @@ void GameDriver::runGame() {
     // send output to io driver
     this->io.display(out);
   }
+
 }
+

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "iodriver.hpp"
+#include <string.h>
 
 using namespace std;
 
@@ -7,6 +8,7 @@ using namespace std;
 // change the implementation of this class
 
 IODriver::IODriver() {
+  this->buildValueCommandMap();
 }
 
 
@@ -18,5 +20,17 @@ void IODriver::display(OutputObject o) {
 InputObject IODriver::getInput() {
   string input;
   getline(cin, input);
-  return InputObject(input);
+  return InputObject(input, this->vcMap);
+}
+
+
+
+// todo pass things in here to make it context sensitive
+void IODriver::buildValueCommandMap() {
+  map<string, Command> m;
+
+  m["n"] = NEW_GLAD;
+  m["s"] = SHOW_ALL_GLADS;
+  
+  this->vcMap = m;
 }
