@@ -3,7 +3,7 @@
 
 using namespace std;
 
-enum Command { NEW_GLAD, SHOW_ALL_GLADS, UNKNOWN };
+enum Command { NEW_GLAD, SHOW_ALL_GLADS, HELP, UNKNOWN };
 
 
 #endif

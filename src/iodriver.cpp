@@ -1,6 +1,8 @@
 #include <iostream>
 #include "iodriver.hpp"
 #include <string.h>
+#include <vector>
+
 
 using namespace std;
 
@@ -31,6 +33,13 @@ void IODriver::buildValueCommandMap() {
 
   m["n"] = NEW_GLAD;
   m["s"] = SHOW_ALL_GLADS;
+  m["h"] = HELP;
+
   
   this->vcMap = m;
+}
+
+
+string IODriver::getHelpString() {
+  return "help not implemented yet";
 }
