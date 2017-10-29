@@ -7,6 +7,10 @@
 #include "manager.hpp"
 #include "rng.hpp"
 
+
+#include "texture.hpp"
+#include "tile.hpp"
+
 #define VERSION "0.01"
 
 
@@ -54,9 +58,6 @@ int main( int argc, char* args[] )
   // seed rng
   rng = mt19937(time(0));
 
-
-
-  
   // setup the input/output driver
   IODriver io;
 
