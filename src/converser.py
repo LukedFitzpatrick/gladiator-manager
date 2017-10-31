@@ -1,23 +1,38 @@
 class Converser:
-    def __init__(self):
-        # ... pass in particular types of converser
-        pass
+    def __init__(self, tree="Idiot"):
+        self.tree = tree
 
     def setAgent(self, a):
         self.agent = a
+
+    def setTree(self, tree):
+        self.tree = tree
         
     def getDialogue(self, conversationState):
         # todo make this different for different people
 
-        if conversationState == "HELLO":
-            return self.agent.getName() + ": Hello!"
-        elif conversationState == "TALK":
-            return self.agent.getName() + ": I haven't got much to say!"
-        elif conversationState == "RECRUIT":
-            return self.agent.getName() + ": Recruit me?"
-        elif conversationState == "FIGHT":
-            return self.agent.getName() + ": Fight!"
-        else:
-            return self.agent.getName() + ": Luke Fitzpatrick doesn't know how to program!"
+        if(self.tree == "Idiot"):
+            if conversationState == "HELLO":
+                return self.agent.getName() + ": Hello!"
+            elif conversationState == "TALK":
+                return self.agent.getName() + ": I haven't got much to say!"
+            elif conversationState == "RECRUIT":
+                return "GET_RECRUITED"
+            elif conversationState == "FIGHT":
+                return self.agent.getName() + ": I don't fight!"
+            else:
+                return self.agent.getName() + ": Luke Fitzpatrick doesn't know how to program!"
     
     
+        if(self.tree == "Ally"):
+            if conversationState == "HELLO":
+                return self.agent.getName() + ": We're going to make it to Rome one day!"
+            elif conversationState == "TALK":
+                return self.agent.getName() + ": What else is there to say?"
+            elif conversationState == "RECRUIT":
+                return self.agent.getName() + ": I'm already a recruit!"
+            elif conversationState == "FIGHT":
+                return self.agent.getName() + ": I don't fight friends!"
+            else:
+                return self.agent.getName() + ": Luke Fitzpatrick doesn't know how to program!"
+            

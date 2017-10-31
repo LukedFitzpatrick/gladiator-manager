@@ -83,13 +83,18 @@ def conversation(screen, clock, messageFont, agent, smallFont):
     conversationState = "HELLO"
 
     while conversationState != "BYE":
-        m = Message(agent.getDialogue(conversationState),
-                (0, 0, 0), (255, 255, 255), messageFont)
-        conversationState = displayMessage(screen, m,  clock,
+        d = agent.getDialogue(conversationState)
+        if(d == "GET_RECRUITED"):
+            return "RECRUIT"
+        if(d == "FIGHT"):
+            return "FIGHT"
+        else:
+            m = Message(d, (0, 0, 0), (255, 255, 255), messageFont)
+            conversationState = displayMessage(screen, m,  clock,
                                            ["TALK", "RECRUIT", "FIGHT", "BYE"],
                                            smallFont)
-
-
+    return "BYE"
+        
                         
 # eventually pass level/scene objects into here
 def playOverworld(screen, clock, level, messageFont, nameFont):
@@ -220,7 +225,11 @@ def playOverworld(screen, clock, level, messageFont, nameFont):
             (playerFaceX, playerFaceY) = level.getPlayer().faceTile()
             a = level.agentAt(playerFaceX, playerFaceY)
             if(a != None):
-                conversation(screen, clock, messageFont, a, nameFont)
+                result = conversation(screen, clock, messageFont, a, nameFont)
+                if(result == "RECRUIT"):
+                    a.converser.setTree("Ally")
+                    level.getPlayer().addRecruit(a)
+                    print "Wow, recruited someone"
                 keysdown = []
 
                 

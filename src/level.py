@@ -5,7 +5,6 @@ from random import randint
 from converser import *
 
 
-
 class Level:
     def __init__(self, levelFile, tileIdToTile):
         self.tileIdToTile = tileIdToTile
@@ -20,7 +19,7 @@ class Level:
             agentRow = []
             
             for column in range(0, 20):
-                row.append(self.tileIdToTile[randint(0, 1)])
+                row.append(self.tileIdToTile[randint(0, 2)])
                 agentRow.append(None)
 
             self.grid.append(row)
@@ -76,9 +75,8 @@ class Level:
             return False
 
 
-        # # todo do something with swapping allies etc. here
         for a in self.agents:
-            if (not (a == agent) and a.x == x and a.y == y):
+            if (not (a == agent) and not a in agent.getRecruits() and a.x == x and a.y == y):
                 return False
 
         return True
