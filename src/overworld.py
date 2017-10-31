@@ -227,7 +227,7 @@ def playOverworld(screen, clock, level, messageFont, nameFont):
             if(a != None):
                 result = conversation(screen, clock, messageFont, a, nameFont)
                 if(result == "RECRUIT"):
-                    a.converser.setTree("Ally")
+                    a.converser.setTree("ally")
                     level.getPlayer().addRecruit(a)
                     print "Wow, recruited someone"
                 keysdown = []

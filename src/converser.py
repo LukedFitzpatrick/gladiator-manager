@@ -1,5 +1,6 @@
 class Converser:
-    def __init__(self, tree="Idiot"):
+    def __init__(self, tree):
+        print tree
         self.tree = tree
 
     def setAgent(self, a):
@@ -11,7 +12,7 @@ class Converser:
     def getDialogue(self, conversationState):
         # todo make this different for different people
 
-        if(self.tree == "Idiot"):
+        if(self.tree == "idiot"):
             if conversationState == "HELLO":
                 return self.agent.getName() + ": Hello!"
             elif conversationState == "TALK":
@@ -24,7 +25,7 @@ class Converser:
                 return self.agent.getName() + ": Luke Fitzpatrick doesn't know how to program!"
     
     
-        if(self.tree == "Ally"):
+        if(self.tree == "ally"):
             if conversationState == "HELLO":
                 return self.agent.getName() + ": We're going to make it to Rome one day!"
             elif conversationState == "TALK":

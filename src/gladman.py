@@ -33,7 +33,7 @@ clock = pygame.time.Clock()
 
 print "Gladiator Manager Version " + VERSION
 
-l1 = Level("", tileIdToTile)
+l1 = Level("data/levels/room.lvl", "data/levels/room.age", tileIdToTile)
 playOverworld(screen, clock, l1, messageFont, nameFont)
 
 
