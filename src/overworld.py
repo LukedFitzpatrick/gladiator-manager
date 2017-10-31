@@ -1,6 +1,7 @@
 import pygame
 from textrect import *
 from constants import *
+from agent import *
 
 
 class Message:
@@ -57,20 +58,29 @@ def displayMessage(screen, message, clock, pressAnyKey=True):
                         done = True
 
 
+def isOnScreen(x, y):
+    return (x >= 0 and x <= NUM_TILES_X and y >= 0 and y <= NUM_TILES_Y)
 
+                        
 # eventually pass level/scene objects into here
 def playOverworld(screen, clock, level, messageFont):
     print "Playing overworld"
 
     # camera moves in tile coordinates
-    cameraX = 0
-    cameraY = 0
+    cameraX = level.getPlayer().x - NUM_TILES_X/2
+    cameraY = level.getPlayer().y - NUM_TILES_Y/2
+
 
     keysdown = []
     
     frameCounter = 0
+    moveLock = 0
     
     done = False
+
+    cameraSlideXPixels = 0
+    cameraSlideYPixels = 0
+    
     while not done:
         clock.tick(FRAME_RATE)
         
@@ -86,37 +96,69 @@ def playOverworld(screen, clock, level, messageFont):
                     keysdown.remove(event.key)                
 
 
-
         # handle key presses
-        if(LEFT_BUTTON in keysdown):
-            cameraX -= 1
-            keysdown.remove(LEFT_BUTTON)
+        if (moveLock == 0):
+            if(LEFT_BUTTON in keysdown):
+                level.getPlayer().translate(-1, 0, level)
+                moveLock = MOVE_LOCK_FRAMES
 
-        if(RIGHT_BUTTON in keysdown):
-            cameraX += 1
-            keysdown.remove(RIGHT_BUTTON)
+            elif(RIGHT_BUTTON in keysdown):
+                level.getPlayer().translate(1, 0, level)
+                moveLock = MOVE_LOCK_FRAMES
 
-        if(UP_BUTTON in keysdown):
-            cameraY -= 1
-            keysdown.remove(UP_BUTTON)
+            elif(UP_BUTTON in keysdown):
+                level.getPlayer().translate(0, -1, level)
+                moveLock = MOVE_LOCK_FRAMES
 
-        if(DOWN_BUTTON in keysdown):
-            cameraY += 1
-            keysdown.remove(DOWN_BUTTON)
-                            
+            elif(DOWN_BUTTON in keysdown):
+                level.getPlayer().translate(0, 1, level)
+                moveLock = MOVE_LOCK_FRAMES
+        else:
+            moveLock = max(moveLock-1, 0)
 
+
+        # make the camera follow the player
+        oldCameraX = cameraX
+        cameraX = level.getPlayer().x - NUM_TILES_X/2
+        oldCameraY = cameraY
+        cameraY = level.getPlayer().y - NUM_TILES_Y/2
+
+        
+        if(cameraX > oldCameraX):
+            cameraSlideXPixels += 4
+        elif(cameraX < oldCameraX):
+            cameraSlideXPixels += -4
+        if(cameraY > oldCameraY):
+            cameraSlideYPixels += 4
+        elif(cameraY < oldCameraY):
+            cameraSlideYPixels += -4
+
+
+            
+        if(cameraSlideXPixels < 0):
+            cameraSlideXPixels += 1
+        elif(cameraSlideXPixels > 0):
+            cameraSlideXPixels -= 1
+        if(cameraSlideYPixels < 0):
+            cameraSlideYPixels += 1
+        elif(cameraSlideYPixels > 0):
+            cameraSlideYPixels -= 1
+
+
+            
         # render
         screen.fill(FILL_COLOUR)
         
         # draw the level grid
         for x in range(cameraX, cameraX+NUM_TILES_X):
             for y in range(cameraY, cameraY+NUM_TILES_Y):
-                screenX = (x-cameraX)*TILE_WIDTH
-                screenY = (y-cameraY)*TILE_HEIGHT
+                screenX = (x-cameraX)*TILE_WIDTH + cameraSlideXPixels
+                screenY = (y-cameraY)*TILE_HEIGHT + cameraSlideYPixels
 
+                # draw tiles
                 if(level.hasTile(x, y)):
                     t = level.getTile(x, y)
-                    screen.blit(t.img, (screenX,screenY,TILE_WIDTH,TILE_HEIGHT))
+                    screen.blit(t.getImage(), (screenX,screenY,TILE_WIDTH,TILE_HEIGHT))
 
                     # display hitboxes
                     if(HITBOXES and t.solid):
@@ -129,12 +171,24 @@ def playOverworld(screen, clock, level, messageFont):
                         pygame.draw.rect(screen,(0,0,255),
                                          (screenX,screenY,TILE_WIDTH,TILE_HEIGHT), 1)
   
-                        
-                        
-        if(frameCounter % 100 == 0):
-            m = Message("Hello, World! " + str(frameCounter), (0, 0, 0), (255, 255, 255), messageFont)
-            displayMessage(screen, m, clock)
 
+        # now draw the agents
+        for a in level.getAgents():
+            projectedX = a.x-cameraX
+            projectedY = a.y-cameraY
+
+            if(isOnScreen(projectedX, projectedY)):
+                screenX = projectedX*TILE_WIDTH + cameraSlideXPixels
+                screenY = projectedY*TILE_HEIGHT + cameraSlideYPixels
+                
+                screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
+            
+                        
+        # if(frameCounter % 100 == 0):
+        #     m = Message("Hello, World! " + str(frameCounter), (0, 0, 0), (255, 255, 255), messageFont)
+        #     displayMessage(screen, m, clock)
+        #     keysdown = []
+            
         pygame.display.flip()
         frameCounter+=1
 
