@@ -20,7 +20,7 @@ pygame.init()
 
 # load fonts
 messageFont = pygame.font.Font("data/font/pokgen1.ttf", 16)
-nameFont = pygame.font.Font("data/font/pokgen1.ttf", 8)
+nameFont = pygame.font.Font("data/font/pokgen1.ttf", 12)
 
 # load tiles
 tileIdToTile = loadTiles()

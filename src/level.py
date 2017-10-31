@@ -2,7 +2,7 @@ from tiles import *
 from agent import *
 from loadTiles import *
 from random import randint
-
+from converser import *
 
 
 
@@ -38,7 +38,7 @@ class Level:
                        self.tileIdToTile["player1left"],
                        self.tileIdToTile["player1right"]]
 
-        self.player = Agent("You", playerTiles)
+        self.player = Agent("You", playerTiles, None)
         self.player.setPosition(0, 0)
         self.agents.append(self.player)
 
@@ -49,10 +49,10 @@ class Level:
                            self.tileIdToTile["enemy1"],
                            self.tileIdToTile["enemy1"]]
 
-            
-            e = Agent("Enemy" + str(i), eTiles)
+            c = Converser()
+            e = Agent("Enemy" + str(i), eTiles, c)
+
             e.setPosition((2*i)+2, (2*i)+2)
-            e.setDialogue("Hello, I'm enemy " + str(i))
             self.agents.append(e)
             
             
@@ -82,3 +82,11 @@ class Level:
                 return False
 
         return True
+
+
+    def agentAt(self, x, y):
+        for a in self.agents:
+            if(a.x == x and a.y == y):
+                return a
+
+        return None

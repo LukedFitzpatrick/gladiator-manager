@@ -1,10 +1,15 @@
 from constants import *
 
 class Agent:
-    def __init__(self, name, tiles, facing="down"):
+    def __init__(self, name, tiles, converser, facing="down"):
         self.tiles = tiles
 
         self.facing = facing
+
+        if(converser):
+            self.converser = converser
+            self.converser.setAgent(self)
+
         
         self.facingToTileMap = {}
         self.facingToTileMap["up"] = tiles[0]
@@ -79,12 +84,6 @@ class Agent:
         if(level.canWalk(projectedX, projectedY, self)):
             self.x = projectedX
             self.y = projectedY
-
-
-        
-    def setDialogue(self, dialogue):
-        self.dialogue = dialogue
     
-
-
-
+    def getDialogue(self, conversationState):
+        return self.converser.getDialogue(conversationState)

@@ -13,7 +13,7 @@ class Message:
 
 
 # pops up a message and waits for key press        
-def displayMessage(screen, message, clock, pressAnyKey=True):
+def displayMessage(screen, message, clock, options, smallFont):
 
     # display the message box
     pygame.draw.rect(screen, (255,255,255),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 0)
@@ -32,34 +32,63 @@ def displayMessage(screen, message, clock, pressAnyKey=True):
     pygame.display.flip()
 
 
-    if(pressAnyKey):
+    keys = ["<" + pygame.key.name(UP_BUTTON) + ">",
+            "<" + pygame.key.name(LEFT_BUTTON) + ">",
+            "<" + pygame.key.name(RIGHT_BUTTON) + ">",
+            "<" + pygame.key.name(DOWN_BUTTON) + ">"]
 
-        # display the 'press any key' 
-        label = message.font.render("<press enter>", 1, PRESS_ANY_KEY_COLOUR)
-
-        screen.blit(label, (GAME_WIDTH-PRESS_ANY_KEY_WIDTH-TEXT_PADDING_X,
-                            GAME_HEIGHT-PRESS_ANY_KEY_HEIGHT-TEXT_PADDING_Y))
-
-        pygame.display.flip()
-
+    i = 0
+    optionsMessage = ""
+    # build the instructions
+    for o in options:
+        optionsMessage += keys[i] + " " + o + "  "
+        i+=1
         
-        # wait for user to accept the message
-        done = False
-        while not done:
-            clock.tick(FRAME_RATE)
+    
+    label = smallFont.render(optionsMessage, 1, PRESS_ANY_KEY_COLOUR)
+    
+    screen.blit(label, (PRESS_ANY_KEY_X+TEXT_PADDING_X,
+                        GAME_HEIGHT-PRESS_ANY_KEY_HEIGHT-TEXT_PADDING_Y))
 
-            for event in pygame.event.get(): 
-                if event.type == pygame.QUIT:                   
-                    # TODO cleanup the exit system
-                    pygame.quit()
+    pygame.display.flip()
 
-                elif event.type == pygame.KEYDOWN:
-                    if(event.key == MESSAGE_ADVANCE_BUTTON):
-                        done = True
+
+    # wait for user to accept the message
+    done = False
+    while not done:
+        clock.tick(FRAME_RATE)
+
+        for event in pygame.event.get(): 
+            if event.type == pygame.QUIT:                   
+                # TODO cleanup the exit system
+                pygame.quit()
+
+            elif event.type == pygame.KEYDOWN:
+                if(event.key == UP_BUTTON):
+                    return options[0]
+                if(event.key == LEFT_BUTTON):
+                    return options[1]
+                if(event.key == RIGHT_BUTTON):
+                    return options[2]
+                if(event.key == DOWN_BUTTON):
+                    return options[3]
 
 
 def isOnScreen(x, y):
     return (x >= 0 and x <= NUM_TILES_X and y >= 0 and y <= NUM_TILES_Y)
+
+
+def conversation(screen, clock, messageFont, agent, smallFont):
+    
+    conversationState = "HELLO"
+
+    while conversationState != "BYE":
+        m = Message(agent.getDialogue(conversationState),
+                (0, 0, 0), (255, 255, 255), messageFont)
+        conversationState = displayMessage(screen, m,  clock,
+                                           ["TALK", "RECRUIT", "FIGHT", "BYE"],
+                                           smallFont)
+
 
                         
 # eventually pass level/scene objects into here
@@ -186,12 +215,15 @@ def playOverworld(screen, clock, level, messageFont, nameFont):
                     screen.blit(label, (screenX, screenY+TILE_HEIGHT))
                                         
 
+        if(INTERACT_BUTTON in keysdown):
+            # check if the player is facing any agents
+            (playerFaceX, playerFaceY) = level.getPlayer().faceTile()
+            a = level.agentAt(playerFaceX, playerFaceY)
+            if(a != None):
+                conversation(screen, clock, messageFont, a, nameFont)
+                keysdown = []
 
                 
-        # if(frameCounter % 100 == 0):
-        #     m = Message("Hello, World! " + str(frameCounter), (0, 0, 0), (255, 255, 255), messageFont)
-        #     displayMessage(screen, m, clock)
-        #     keysdown = []
             
         pygame.display.flip()
         frameCounter+=1
