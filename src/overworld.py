@@ -125,16 +125,14 @@ def playOverworld(screen, clock, level, messageFont):
 
         
         if(cameraX > oldCameraX):
-            cameraSlideXPixels += 4
+            cameraSlideXPixels += CAMERA_SLIDE_AMOUNT
         elif(cameraX < oldCameraX):
-            cameraSlideXPixels += -4
+            cameraSlideXPixels -= CAMERA_SLIDE_AMOUNT
         if(cameraY > oldCameraY):
-            cameraSlideYPixels += 4
+            cameraSlideYPixels += CAMERA_SLIDE_AMOUNT
         elif(cameraY < oldCameraY):
-            cameraSlideYPixels += -4
+            cameraSlideYPixels -= CAMERA_SLIDE_AMOUNT
 
-
-            
         if(cameraSlideXPixels < 0):
             cameraSlideXPixels += 1
         elif(cameraSlideXPixels > 0):
