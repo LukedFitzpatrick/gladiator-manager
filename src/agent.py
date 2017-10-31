@@ -33,6 +33,21 @@ class Agent:
         self.y = y
 
 
+    def faceTile(self):
+        if(self.facing == "right"):
+            return (self.x+1, self.y)
+        elif(self.facing == "left"):
+            return (self.x-1, self.y)
+        elif(self.facing == "up"):
+            return (self.x, self.y-1)
+        elif(self.facing == "down"):
+            return (self.x, self.y+1)
+        else:
+            print "Agent.py, faceTile(): Something terrible has happened"
+        
+            
+    
+        
     def translate(self, deltaX, deltaY, level):
         projectedX = self.x + deltaX
         projectedY = self.y + deltaY
