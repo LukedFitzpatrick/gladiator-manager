@@ -69,7 +69,16 @@ class Level:
     def getPlayer(self):
         return self.player
 
+    
+    def canWalk(self, x, y, agent):
+        # basic check
+        if (not self.hasTile(x, y) or self.getTile(x, y).solid):
+            return False
 
-    def canWalk(self, x, y):
-        return hasTile(projectedX, projectedY) and
-               not level.getTile(projectedX, projectedY).solid):
+
+        # # todo do something with swapping allies etc. here
+        for a in self.agents:
+            if (not (a == agent) and a.x == x and a.y == y):
+                return False
+
+        return True

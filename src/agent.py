@@ -37,31 +37,31 @@ class Agent:
         projectedX = self.x + deltaX
         projectedY = self.y + deltaY
 
-        if(level.hasTile(projectedX, projectedY) and
-           not level.getTile(projectedX, projectedY).solid):
 
-            if(projectedX > self.x):
-                if(CAN_TURN_ON_THE_SPOT and self.facing != "right"):
-                    projectedX = self.x
-                self.facing = "right"
-                
-            elif(projectedX < self.x):
-                if(CAN_TURN_ON_THE_SPOT and self.facing != "left"):
-                    projectedX = self.x
-                self.facing = "left"
 
-            if(projectedY > self.y):
-                if(CAN_TURN_ON_THE_SPOT and self.facing != "down"):
-                    projectedY = self.y
-                    
-                self.facing = "down"
+        if(projectedX > self.x):
+            if(CAN_TURN_ON_THE_SPOT and self.facing != "right"):
+                projectedX = self.x
+            self.facing = "right"
 
-            elif(projectedY < self.y):
-                if(CAN_TURN_ON_THE_SPOT and self.facing != "up"):
-                    projectedY = self.y
+        elif(projectedX < self.x):
+            if(CAN_TURN_ON_THE_SPOT and self.facing != "left"):
+                projectedX = self.x
+            self.facing = "left"
 
-                self.facing = "up"
-                
+        if(projectedY > self.y):
+            if(CAN_TURN_ON_THE_SPOT and self.facing != "down"):
+                projectedY = self.y
+
+            self.facing = "down"
+
+        elif(projectedY < self.y):
+            if(CAN_TURN_ON_THE_SPOT and self.facing != "up"):
+                projectedY = self.y
+
+            self.facing = "up"
+
+        if(level.canWalk(projectedX, projectedY, self)):
             self.x = projectedX
             self.y = projectedY
 
