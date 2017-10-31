@@ -40,21 +40,28 @@ void Gladiator::generateSelf() {
   std::uniform_int_distribution<int> statGen(0, 100);
   this->attack = statGen(rng);
   this->defence = statGen(rng);
-  this->speed = statGen(rng);
-  this->intimidation = statGen(rng);
-  this->mentalToughness = statGen(rng);
-  this->xFactor = statGen(rng);
-  
-  
+  this->speed = statGen(rng);  
+
+  this->dead = false;
+}
+
+
+bool Gladiator::isDead() {
+  return dead;
 }
 
 string Gladiator::toString() {
-  return "== " + this->firstName + " " + this->lastName +
-    " (" + to_string(this->age) + ") ==\n" +
-    "  Attack: " + to_string(this->attack) + "\n" +
-    "  Defence: " + to_string(this->defence) + "\n" +
-     "  Speed: " + to_string(this->speed) + "\n" +
-    "  Intimidation: " + to_string(this->intimidation) + "\n" +
-  "  Mental Toughness: " + to_string(this->mentalToughness) + "\n" +
-     "  X-Factor: " + to_string(this->xFactor) + "\n";
+  return "**" + this->firstName + " " + this->lastName +
+    " \t (" + to_string(this->age) + "): " +
+    "A: " + to_string(this->attack) + ", " +
+    "D: " + to_string(this->defence) + ", " +
+    "S: " + to_string(this->speed) + " **\n";
+}
+
+string Gladiator::fullName() {
+  return this->firstName + " " + this->lastName;
+}
+
+int Gladiator::getSpeed() {
+  return speed;
 }

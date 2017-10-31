@@ -9,20 +9,22 @@ private:
   string firstName;
   string lastName;
   int age;
-
   
   // battle stats
   int attack;
   int defence;
   int speed;
-  int intimidation;
-  int mentalToughness;
-  int xFactor;
+
+  bool dead;
   
 public:
   Gladiator();
   void generateSelf();
   string toString();
+  bool isDead();
+
+  int getSpeed();
+  string fullName();
 };
 
 #endif

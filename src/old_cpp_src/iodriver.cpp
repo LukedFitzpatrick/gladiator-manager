@@ -34,7 +34,7 @@ void IODriver::buildValueCommandMap() {
   m["n"] = NEW_GLAD;
   m["s"] = SHOW_ALL_GLADS;
   m["h"] = HELP;
-
+  m["b"] = BATTLE;
   
   this->vcMap = m;
 }

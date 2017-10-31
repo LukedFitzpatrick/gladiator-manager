@@ -4,6 +4,7 @@
 #include "iodriver.hpp"
 #include "command.hpp"
 #include "gladiator.hpp"
+#include "battle.hpp"
 
 using namespace std;
 
@@ -26,9 +27,9 @@ void GameDriver::runGame() {
     switch(c) {
       case NEW_GLAD:
 	{
-	Gladiator g;
-	this->manager.addGladiator(g);
-	outputString = "Generated new gladiator: \n" + g.toString();
+	  Gladiator g;
+	  this->manager.addGladiator(g);
+	  outputString = "Generated new gladiator: \n" + g.toString();
 	}
       break;
 
@@ -39,7 +40,20 @@ void GameDriver::runGame() {
       case HELP:
 	outputString = io.getHelpString();
       break;
-	
+
+      case BATTLE:
+	{
+	  Battle b = Battle();
+	  if(b.runBattle(io)) {
+	    outputString = "Team A Won!";
+	  }
+	  else {
+	    outputString = "Team B Won!";
+	  }
+	}
+      break;
+
+      
       default:
 	outputString = "Huh?";
     }
