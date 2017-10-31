@@ -182,10 +182,10 @@ def playOverworld(screen, clock, level, messageFont):
                 screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
             
                         
-        # if(frameCounter % 100 == 0):
-        #     m = Message("Hello, World! " + str(frameCounter), (0, 0, 0), (255, 255, 255), messageFont)
-        #     displayMessage(screen, m, clock)
-        #     keysdown = []
+        if(frameCounter % 100 == 0):
+            m = Message("Hello, World! " + str(frameCounter), (0, 0, 0), (255, 255, 255), messageFont)
+            displayMessage(screen, m, clock)
+            keysdown = []
             
         pygame.display.flip()
         frameCounter+=1
