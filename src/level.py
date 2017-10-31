@@ -68,3 +68,8 @@ class Level:
     # should have been set in readFromFile
     def getPlayer(self):
         return self.player
+
+
+    def canWalk(self, x, y):
+        return hasTile(projectedX, projectedY) and
+               not level.getTile(projectedX, projectedY).solid):
