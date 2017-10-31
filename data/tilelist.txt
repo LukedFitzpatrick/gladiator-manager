@@ -1,0 +1,8 @@
+0,data/tiles/grass1.png,False,
+1,data/tiles/stone1.png,False,
+2,data/tiles/void1.png,True,
+player1up,data/sprites/player1up.png,True,
+player1down,data/sprites/player1down.png,True,
+player1left,data/sprites/player1left.png,True,
+player1right,data/sprites/player1right.png,True,
+enemy1,data/sprites/enemy1.png,True,
