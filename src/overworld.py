@@ -63,7 +63,7 @@ def isOnScreen(x, y):
 
                         
 # eventually pass level/scene objects into here
-def playOverworld(screen, clock, level, messageFont):
+def playOverworld(screen, clock, level, messageFont, nameFont):
     print "Playing overworld"
 
     # camera moves in tile coordinates
@@ -133,14 +133,14 @@ def playOverworld(screen, clock, level, messageFont):
         elif(cameraY < oldCameraY):
             cameraSlideYPixels -= CAMERA_SLIDE_AMOUNT
 
-        if(cameraSlideXPixels < 0):
-            cameraSlideXPixels += 1
-        elif(cameraSlideXPixels > 0):
-            cameraSlideXPixels -= 1
-        if(cameraSlideYPixels < 0):
-            cameraSlideYPixels += 1
-        elif(cameraSlideYPixels > 0):
-            cameraSlideYPixels -= 1
+        if(cameraSlideXPixels < -CAMERA_SLIDE_SPEED):
+            cameraSlideXPixels += CAMERA_SLIDE_SPEED
+        elif(cameraSlideXPixels > CAMERA_SLIDE_SPEED):
+            cameraSlideXPixels -= CAMERA_SLIDE_SPEED
+        if(cameraSlideYPixels < -CAMERA_SLIDE_SPEED):
+            cameraSlideYPixels += CAMERA_SLIDE_SPEED
+        elif(cameraSlideYPixels > CAMERA_SLIDE_SPEED):
+            cameraSlideYPixels -= CAMERA_SLIDE_SPEED
 
 
             
@@ -148,8 +148,8 @@ def playOverworld(screen, clock, level, messageFont):
         screen.fill(FILL_COLOUR)
         
         # draw the level grid
-        for x in range(cameraX, cameraX+NUM_TILES_X):
-            for y in range(cameraY, cameraY+NUM_TILES_Y):
+        for x in range(cameraX-1, cameraX+NUM_TILES_X+1):
+            for y in range(cameraY-1, cameraY+NUM_TILES_Y+1):
                 screenX = (x-cameraX)*TILE_WIDTH + cameraSlideXPixels
                 screenY = (y-cameraY)*TILE_HEIGHT + cameraSlideYPixels
 
@@ -180,12 +180,18 @@ def playOverworld(screen, clock, level, messageFont):
                 screenY = projectedY*TILE_HEIGHT + cameraSlideYPixels
                 
                 screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
-            
-                        
-        if(frameCounter % 100 == 0):
-            m = Message("Hello, World! " + str(frameCounter), (0, 0, 0), (255, 255, 255), messageFont)
-            displayMessage(screen, m, clock)
-            keysdown = []
+
+                if(NAMES_ABOVE_AGENTS):
+                    label = nameFont.render(a.getName(), 1, (0, 0, 0))
+                    screen.blit(label, (screenX, screenY+TILE_HEIGHT))
+                                        
+
+
+                
+        # if(frameCounter % 100 == 0):
+        #     m = Message("Hello, World! " + str(frameCounter), (0, 0, 0), (255, 255, 255), messageFont)
+        #     displayMessage(screen, m, clock)
+        #     keysdown = []
             
         pygame.display.flip()
         frameCounter+=1
