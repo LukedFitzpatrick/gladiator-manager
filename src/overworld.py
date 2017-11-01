@@ -15,48 +15,47 @@ class Message:
 # pops up a message and waits for key press        
 def displayMessage(screen, message, clock, options, smallFont):
 
-    # display the message box
-    pygame.draw.rect(screen, (255,255,255),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 0)
 
-    pygame.draw.rect(screen, (100,100,100),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 10)
-    pygame.draw.rect(screen, (0,0,0),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 5)
-
-    # word wrap the message into a label
-    messageRect = pygame.Rect(TEXT_PADDING_X, OVERWORLD_HEIGHT+TEXT_PADDING_Y,
-                   MESSAGE_WIDTH-(TEXT_PADDING_X*2), MESSAGE_HEIGHT-(TEXT_PADDING_Y*2))
+    currentOptionIndex = 0
     
-    label = render_textrect(message.text, message.font, messageRect,
-                            message.colour, message.backgroundColour, 0)
-    
-    screen.blit(label, (TEXT_PADDING_X, (OVERWORLD_HEIGHT-MESSAGE_HEIGHT)+TEXT_PADDING_Y))
-    pygame.display.flip()
-
-
-    keys = ["<" + pygame.key.name(UP_BUTTON) + ">",
-            "<" + pygame.key.name(LEFT_BUTTON) + ">",
-            "<" + pygame.key.name(RIGHT_BUTTON) + ">",
-            "<" + pygame.key.name(DOWN_BUTTON) + ">"]
-
-    i = 0
-    optionsMessage = ""
-    # build the instructions
-    for o in options:
-        optionsMessage += keys[i] + " " + o + "  "
-        i+=1
-        
-    
-    label = smallFont.render(optionsMessage, 1, PRESS_ANY_KEY_COLOUR)
-    
-    screen.blit(label, (PRESS_ANY_KEY_X+TEXT_PADDING_X,
-                        GAME_HEIGHT-PRESS_ANY_KEY_HEIGHT-TEXT_PADDING_Y))
-
-    pygame.display.flip()
-
 
     # wait for user to accept the message
     done = False
     while not done:
         clock.tick(FRAME_RATE)
+        # display the message box
+        pygame.draw.rect(screen, (255,255,255),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 0)
+
+        pygame.draw.rect(screen, (100,100,100),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 10)
+        pygame.draw.rect(screen, (0,0,0),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 5)
+
+        # word wrap the message into a label
+        messageRect = pygame.Rect(TEXT_PADDING_X, OVERWORLD_HEIGHT+TEXT_PADDING_Y,
+                              MESSAGE_WIDTH-(TEXT_PADDING_X*2), MESSAGE_HEIGHT-(TEXT_PADDING_Y*2))
+    
+        label = render_textrect(message.text, message.font, messageRect,
+                            message.colour, message.backgroundColour, 0)
+    
+        screen.blit(label, (TEXT_PADDING_X, (OVERWORLD_HEIGHT-MESSAGE_HEIGHT)+TEXT_PADDING_Y))
+        pygame.display.flip()
+
+        
+        optionsMessage = options[currentOptionIndex]
+
+        
+        optionText = options[currentOptionIndex]
+        if(currentOptionIndex > 0):
+            optionText = "<- " + optionText
+        if(currentOptionIndex < len(options)-1):
+            optionText += " ->"
+            
+        label = smallFont.render(optionText, 1, PRESS_ANY_KEY_COLOUR)
+        
+        screen.blit(label, (PRESS_ANY_KEY_X+TEXT_PADDING_X,
+                        GAME_HEIGHT-PRESS_ANY_KEY_HEIGHT-TEXT_PADDING_Y))
+
+        pygame.display.flip()
+
 
         for event in pygame.event.get(): 
             if event.type == pygame.QUIT:                   
@@ -64,14 +63,15 @@ def displayMessage(screen, message, clock, options, smallFont):
                 pygame.quit()
 
             elif event.type == pygame.KEYDOWN:
-                if(event.key == UP_BUTTON):
-                    return options[0]
-                if(event.key == LEFT_BUTTON):
-                    return options[1]
-                if(event.key == RIGHT_BUTTON):
-                    return options[2]
-                if(event.key == DOWN_BUTTON):
-                    return options[3]
+                if(event.key == ACCEPT_BUTTON):
+                    return options[currentOptionIndex]
+
+                elif(event.key == RIGHT_BUTTON):
+                    currentOptionIndex = (currentOptionIndex+1) % len(options)
+
+                elif(event.key == LEFT_BUTTON):
+                    currentOptionIndex = (currentOptionIndex-1) % len(options)
+
 
 
 def isOnScreen(x, y):
@@ -95,9 +95,15 @@ def conversation(screen, clock, messageFont, agent, smallFont):
                                            smallFont)
     return "BYE"
         
-                        
+
+
+def displayPressEnterMessage(screen, font, o):
+    label = font.render("<press enter>", 1, (255, 255, 255))
+    screen.blit(label, (0, 0))
+
+
 # eventually pass level/scene objects into here
-def playOverworld(screen, clock, level, messageFont, nameFont):
+def playOverworld(screen, clock, level, messageFont, smallFont):
     print "Playing overworld"
 
     # camera moves in tile coordinates
@@ -202,7 +208,23 @@ def playOverworld(screen, clock, level, messageFont, nameFont):
                     if(HITBOXES):
                         pygame.draw.rect(screen,(0,0,255),
                                          (screenX,screenY,TILE_WIDTH,TILE_HEIGHT), 1)
-  
+
+
+        # now draw the objects
+        for a in level.getObjects():
+            projectedX = a.x-cameraX
+            projectedY = a.y-cameraY
+
+            if(isOnScreen(projectedX, projectedY)):
+                screenX = projectedX*TILE_WIDTH + cameraSlideXPixels
+                screenY = projectedY*TILE_HEIGHT + cameraSlideYPixels
+                
+                screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
+
+                if(NAMES_ABOVE_AGENTS):
+                    label = smallFont.render(a.getName(), 1, (0, 0, 0))
+                    screen.blit(label, (screenX, screenY+TILE_HEIGHT))
+
 
         # now draw the agents
         for a in level.getAgents():
@@ -216,24 +238,38 @@ def playOverworld(screen, clock, level, messageFont, nameFont):
                 screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
 
                 if(NAMES_ABOVE_AGENTS):
-                    label = nameFont.render(a.getName(), 1, (0, 0, 0))
+                    label = smallFont.render(a.getName(), 1, (0, 0, 0))
                     screen.blit(label, (screenX, screenY+TILE_HEIGHT))
                                         
 
-        if(INTERACT_BUTTON in keysdown):
-            # check if the player is facing any agents
-            (playerFaceX, playerFaceY) = level.getPlayer().faceTile()
-            a = level.agentAt(playerFaceX, playerFaceY)
-            if(a != None):
-                result = conversation(screen, clock, messageFont, a, nameFont)
+                    
+
+        
+        (playerFaceX, playerFaceY) = level.getPlayer().faceTile()
+
+        # check if the player is facing any agents
+        a = level.agentAt(playerFaceX, playerFaceY)
+        if(a != None):
+            if (INTERACT_BUTTON in keysdown):
+                displayPressEnterMessage(screen, o, smallFont)
+                result = conversation(screen, clock, messageFont, a, smallFont)
                 if(result == "RECRUIT"):
                     a.converser.setTree("ally")
                     level.getPlayer().addRecruit(a)
-                    print "Wow, recruited someone"
                 keysdown = []
 
-                
+        # check if player is facing any objects
+        o = level.objectAt(playerFaceX, playerFaceY)
+        if(o != None):
+            displayPressEnterMessage(screen, smallFont, o)
+            if (INTERACT_BUTTON in keysdown):
+                m = Message(o.getDialogue(), (0, 0, 0), (255, 255, 255), messageFont)
+                displayMessage(screen, m, clock, [""], smallFont)
+                keysdown = []
+
             
         pygame.display.flip()
         frameCounter+=1
 
+
+    
