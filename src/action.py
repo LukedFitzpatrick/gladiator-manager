@@ -3,7 +3,9 @@ class Action:
         self.name = name
         self.waitingForState = False
         self.waitingForInteraction = False
+        self.whenInteractWith = []
 
+        self.setsObjective = False
         self.changesState = False
         self.makesMessage = False
         self.messages = []
@@ -19,8 +21,8 @@ class Action:
         self.whenInState = state
         self.waitingForState = True
 
-    def setWhenInteractWith(self, objectName):
-        self.whenInteractWith = objectName
+    def addWhenInteractWith(self, objectName):
+        self.whenInteractWith.append(objectName)
         self.waitingForInteraction = True
 
     # ACTIONS
@@ -46,14 +48,20 @@ class Action:
         self.changesLevel = True
         self.changeLevelTo = level
 
+
+    def setObjective(self, objective):
+        self.setsObjective = True
+        self.objective = objective
         
     def triggeredBy(self, state, interactedWith):
         if(self.waitingForState and self.whenInState != state):
             return False
         
         # are we triggered by an interaction?
-        if(self.waitingForInteraction and self.whenInteractWith == interactedWith):
-            return True
+        if self.waitingForInteraction:
+            for i in self.whenInteractWith:
+                if i == interactedWith:
+                    return True
 
         return False
 
@@ -78,3 +86,6 @@ class Action:
             for e in self.changeObjectDialogue:
                 (objName, newDialogue) = e
                 level.changeObjectDialogue(objName, newDialogue)
+
+        if(self.setsObjective):
+            level.setObjective(self.objective)

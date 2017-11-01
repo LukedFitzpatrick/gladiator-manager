@@ -3,11 +3,12 @@ start_state initial
 # Looking at the bookshelf makes the phone ring: todo change to door
 begin phoneRing
       whenInState initial
-      whenInteractWith Bookshelfr
+      whenInteractWith Door
 
       changeStateTo phone_ringing
       message The phone's ringing!
       message Better pick it up!
+      objective Answer the phone
       changeObjectTile Deskl roomdesklringing
       changeObjectDialogue Deskl Hello...?
 end phoneRing
@@ -18,6 +19,7 @@ begin pickupPhone
       whenInteractWith Deskl
 
       changeStateTo after_phone
+      objective none
       message Hello! This is your mother!
       message I've been held up here - I won't be home until late!
       message Now you get some sleep! Don't spend too long on that computer of yours!
@@ -47,6 +49,7 @@ end readComputer
 begin goToSleep
       whenInState after_computer
       whenInteractWith Bedt
+      whenInteractWith Bedb
 
       message You go to sleep...
       changeLevel room

@@ -13,6 +13,12 @@ class Level:
         self.readFromFile(levelFile, agentFile, objectFile, actionFile)
         self.messages = []
         self.readyForNextLevel = False
+        self.torchOn = False
+        self.ambientLight = (50, 50, 100)
+        self.torchLight = (226, 244, 66)
+
+        self.hasObjective = False
+        self.objective = ""
 
         
     def readFromFile(self, levelFile, agentFile, objectFile, actionFile):
@@ -41,8 +47,9 @@ class Level:
             objectInfo = line.split(',')
                     
             tile = self.tileIdToTile[objectInfo[OBJECT_SPRITE_INDEX]]
-            
-            o = Object(objectInfo[OBJECT_NAME_INDEX], tile, objectInfo[OBJECT_DIALOGUE_INDEX])
+
+            dialogue = objectInfo[OBJECT_DIALOGUE_INDEX].replace("*comma*", ",")
+            o = Object(objectInfo[OBJECT_NAME_INDEX], tile, dialogue)
 
             o.setPosition(int(objectInfo[OBJECT_X_INDEX]),
                           int(objectInfo[OBJECT_Y_INDEX]))
@@ -119,7 +126,7 @@ class Level:
 
             # set the object we have to interact with for the action to trigger
             elif(command == ACTION_LANG_WHEN_INTERACT_WITH):
-                currAction.setWhenInteractWith(arguments[0])
+                currAction.addWhenInteractWith(arguments[0])
 
             # set the state we change to when the action happens
             elif(command == ACTION_LANG_CHANGE_STATE_TO):
@@ -140,11 +147,19 @@ class Level:
             # go to another level
             elif(command == ACTION_LANG_CHANGE_LEVEL):
                 currAction.setChangeLevel(arguments[0])
+
+            # add an objective
+            elif(command == ACTION_LANG_OBJECTIVE):
+                if(arguments[0] == "none"):
+                    currAction.setObjective("")
+                else:
+                    currAction.setObjective(' '.join(arguments))
                 
             # complete an action
             elif(command == ACTION_LANG_END_ACTION):
                 self.actions.append(currAction)
                 currAction = None
+                
 
             else:
                 print "ERROR: Unrecognised ACTION_LANG line " + line
@@ -167,7 +182,18 @@ class Level:
         for o in self.objects:
             if(o.name == objectName):
                 o.setDialogue(newDialogue)
-        
+
+    def setObjective(self, objective):
+        self.objective = objective
+        self.hasObjective = True
+
+
+    def cancelObjective(self):
+        self.hasObjective = False
+        self.objective = ""
+
+    def getObjective(self):
+        return self.objective
 
     def changeLevel(self, level):
         # send a message to the overworld handler that we want to end the level

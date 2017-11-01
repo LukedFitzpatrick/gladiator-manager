@@ -13,7 +13,7 @@ class Message:
 
 
 # pops up a message and waits for key press        
-def displayMessage(screen, message, clock, options, smallFont):
+def displayMessage(screen, message, clock, options, smallFont, level):
 
 
     currentOptionIndex = 0
@@ -76,30 +76,17 @@ def displayMessage(screen, message, clock, options, smallFont):
 
 def isOnScreen(x, y):
     return (x >= 0 and x <= NUM_TILES_X and y >= 0 and y <= NUM_TILES_Y)
-
-
-def conversation(screen, clock, messageFont, agent, smallFont):
-    
-    conversationState = "HELLO"
-
-    while conversationState != "BYE":
-        d = agent.getDialogue(conversationState)
-        if(d == "GET_RECRUITED"):
-            return "RECRUIT"
-        if(d == "FIGHT"):
-            return "FIGHT"
-        else:
-            m = Message(d, (0, 0, 0), (255, 255, 255), messageFont)
-            conversationState = displayMessage(screen, m,  clock,
-                                           ["TALK", "RECRUIT", "FIGHT", "BYE"],
-                                           smallFont)
-    return "BYE"
         
 
 
 def displayPressEnterMessage(screen, font, o):
     label = font.render("<press enter>", 1, (255, 255, 255))
     screen.blit(label, (0, 0))
+
+def displayObjective(screen, font, objective):
+    label = font.render(objective, 1, (255, 255, 255))
+
+    screen.blit(label, (GAME_WIDTH-label.get_width(), 0))
 
 
 # eventually pass level/scene objects into here
@@ -120,6 +107,9 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
 
     cameraSlideXPixels = 0
     cameraSlideYPixels = 0
+
+    light = pygame.image.load("data/circle.png")
+    
     
     while not done:
         clock.tick(FRAME_RATE)
@@ -186,6 +176,11 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
             
         # render
         screen.fill(FILL_COLOUR)
+
+        # draw the objective nice and early
+        if(level.hasObjective):
+            displayObjective(screen, smallFont, level.objective)
+
         
         # draw the level grid
         for x in range(cameraX-1, cameraX+NUM_TILES_X+1):
@@ -242,8 +237,37 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
                     screen.blit(label, (screenX, screenY+TILE_HEIGHT))
                                         
 
-                    
+        # do lighting/torch lighting
+        if(level.torchOn):
+            filter = pygame.surface.Surface((GAME_WIDTH, GAME_HEIGHT))
+            filter.fill(map(lambda x:255-x, level.ambientLight))
 
+            (playerFaceX, playerFaceY) = level.getPlayer().faceTile()
+            playerX = level.getPlayer().x
+            playerY = level.getPlayer().y
+
+            deltaX = playerFaceX - playerX
+            deltaY = playerFaceY - playerY
+
+            torchX = playerX
+            torchY = playerY
+            lightingDone = False
+
+            while not lightingDone:
+                if(not level.canWalk(torchX, torchY, level.getPlayer())):
+                   lightingDone = True
+                screenX = (torchX-cameraX)*TILE_WIDTH + cameraSlideXPixels
+                screenY = (torchY-cameraY)*TILE_HEIGHT + cameraSlideYPixels
+                pygame.draw.rect(filter, map(lambda x:255-x, level.torchLight),
+                                 pygame.Rect(screenX, screenY,
+                                             TILE_WIDTH, TILE_HEIGHT), 0)            
+                torchX += deltaX
+                torchY += deltaY
+
+            screen.blit(filter, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
+                    
+        
+        
         
         (playerFaceX, playerFaceY) = level.getPlayer().faceTile()
 
@@ -254,12 +278,8 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
         if(a != None):
             if (INTERACT_BUTTON in keysdown):
                 displayPressEnterMessage(screen, o, smallFont)
-                result = conversation(screen, clock, messageFont, a, smallFont)
+                #result = conversation(screen, clock, messageFont, a, smallFont)
                 interactedWithThisFrame = a.getName()
-                if(result == "RECRUIT"):
-                    a.converser.setTree("ally")
-                    level.getPlayer().addRecruit(a)
-
                 keysdown = []
 
         # check if player is facing any objects
@@ -268,10 +288,12 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
             displayPressEnterMessage(screen, smallFont, o)
             if (INTERACT_BUTTON in keysdown):
                 m = Message(o.getDialogue(), (0, 0, 0), (255, 255, 255), messageFont)
-                displayMessage(screen, m, clock, [""], smallFont)
+                displayMessage(screen, m, clock, [""], smallFont, level)
                 keysdown = []
                 interactedWithThisFrame = o.getName()
-                                
+
+
+                
         pygame.display.flip()
 
         frameCounter+=1
@@ -282,7 +304,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
         # check if the level has any messages for us
         for s in level.getMessages():
             m = Message(s, (255, 0, 0), (255, 255, 255), messageFont)
-            displayMessage(screen, m, clock, [""], smallFont)
+            displayMessage(screen, m, clock, [""], smallFont, level)
             keysdown = []
 
         level.emptyMessages()
