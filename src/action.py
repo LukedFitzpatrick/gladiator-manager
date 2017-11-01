@@ -63,6 +63,8 @@ class Action:
                 if i == interactedWith:
                     return True
 
+        
+        
         return False
 
     def performAction(self, level):

@@ -114,7 +114,7 @@ class Level:
             if(command == ACTION_LANG_INITIAL_STATE):
                 self.state = arguments[0]
                 #print "Interpreted " + str(l) + " as me starting in state '" + str(arguments[0]) + "'"
-
+            
             # start a new action
             elif(command == ACTION_LANG_BEGIN_ACTION):
                 currAction = Action(arguments[0])

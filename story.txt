@@ -1,3 +1,71 @@
-- AI singularity occurs and decides to destroy all technology
+November 1st 2018 8:00 P.M.
 
-- What would happen if the internet went out?
+You begin in your room. It is an ordinary day like any other. After
+looking around the room a bit (hopefully discovering the door, a
+cabinet with torch/knife, light switch). You receive a call saying
+that your daughter Eva is with her friends and won't be home until
+late. You see on the computer/hear on hear on the radio a report that
+an AI researcher has made a major breakthrough, but dismiss it. You go
+to sleep.
+
+November 2nd 2018 3:00 A.M.
+
+You wake up with a start. Things seem - quiet. You wonder if Eva made
+it home yet. You get up out of bed and try to turn on the light -
+doesn't work! Everything is dark, you stumble around and pick up a
+torch. (this allows you to see somewhat more than without). You walk
+out of the room calling for Eva. No answer. Keep exploring until you
+walk out the front door.
+
+
+Your house:
+  ------------------------------------------
+  | Your     | Eva's   | Bath  |  Lounge   |
+  | Room     | Room    | room  |   Room    |
+  -------\----------\------\---------      |
+  |                                         \
+  --------------------------------         |
+  |  Music    |   Kitchen/Dining Area      |
+  |  Room                                  |
+  |           |                            |
+  |-----------------------------------------
+                    |                      |
+		    |   Garage             \
+		    |                      |
+		    |                      |
+		    |-----------------------
+
+Suddenly, a car screeches to a stop outside your house (floodlights
+etc.) It's your neighbour/friend Jim. He gets out of the car.
+You: "Jim what's happening, the powers out -- where's Eva!".
+Jim: "There's bigger problems than Eva now, we've got to get out of here fast! It's spreading - you've got them in the house right?"
+You: "What are you talking about?"
+Jim: "The virus! Don't you know? No time to explain now, just get inside, get something to protect yourself with and don't go near the computer!"
+
+You go inside, rummage around and find a pocket knife/a kitchen knife etc.
+
+(you now have a torch and a knife. You can only equip one. Both are used with spacebar)
+
+You come back outside, there are more cars racing by and people
+running around.
+
+Jim: "Hurry up, we don't have much time. There's already people trying
+to stock up on fuel and food: now that the grid's gone down it's every
+man for himself"
+
+A group of men walk up:
+"How much petrol is left in that car?"
+"Well why don't we take a look?"
+Jim: Stop right there! Or I'll make you stop!
+"You and what army? Him? HAH!"
+Jim: Take one more step and I'll ...
+"We don't have time for games"
+
+The bandits kill Jim. Before he dies he gives you a piece of paper.
+
+Bandits: you won't give us any trouble, will you?
+
+
+
+
+

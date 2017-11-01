@@ -52,5 +52,5 @@ begin goToSleep
       whenInteractWith Bedb
 
       message You go to sleep...
-      changeLevel room
+      changeLevel room2
 end goToSleep

@@ -1,0 +1,12 @@
+start_state initial
+
+begin start
+      whenInState initial
+
+      changeStateTo find_torch
+
+      message ...
+      message ... What time is it?
+      message I can't see a thing, where's that torch
+      objective Find the torch
+end start
