@@ -23,7 +23,13 @@ def loadTiles(tileFile):
         else:
             solid = False
 
-        tileIdToTile[key] = Tile(tileData[TILE_IMAGE_PATH_INDEX], solid)
+        d = tileData[TILE_IMAGE_PATH_INDEX]
+        if(d[0] == '[' and d[-1] == ']'):
+            print "Found an animated sprite"
+            frames = d[1:-1].split(' ')
+            tileIdToTile[key] = Tile(frames, solid)
+        else:
+            tileIdToTile[key] = Tile([d], solid)
 
     return tileIdToTile
 
@@ -44,11 +50,16 @@ clock = pygame.time.Clock()
 
 print "Gladiator Manager Version " + VERSION
 
-l1 = Level("data/levels/room/room.lvl", "data/levels/room/room.age",
-           "data/levels/room/room.obj", "data/levels/room/room.act",
-           tileIdToTile)
 
-playOverworld(screen, clock, l1, messageFont, nameFont)
+nextLevel = "room"
+while True:
+    l = Level("data/levels/"+ nextLevel + "/" + nextLevel + ".lvl",
+              "data/levels/"+ nextLevel + "/" + nextLevel + ".age",
+              "data/levels/"+ nextLevel + "/" + nextLevel + ".obj",
+              "data/levels/"+ nextLevel + "/" + nextLevel + ".act",
+              tileIdToTile)
+
+    nextLevel = playOverworld(screen, clock, l, messageFont, nameFont)
 
 
 

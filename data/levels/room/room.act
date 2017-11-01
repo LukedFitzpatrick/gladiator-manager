@@ -25,5 +25,29 @@ begin pickupPhone
 
       changeObjectTile Deskl roomdeskl
       changeObjectDialogue Deskl Phone's quiet now.
-
+      changeObjectDialogue Bedt Surely a little bit of computer time won't hurt...
+      changeObjectDialogue Bedb Surely a little bit of computer time won't hurt...
 end pickupPhone
+
+
+# reading the computer
+begin readComputer
+      whenInState after_phone
+      whenInteractWith Deskr
+
+      changeStateTo after_computer
+      message Reddit.com: "Controversial AI Researcher Announces HUGE BREAKTHROUGH"
+      message ... more clickbait ...
+      changeObjectDialogue Bedt Your bed sure looks comfortable!
+      changeObjectDialogue Bedb Your bed sure looks comfortable!
+end readComputer
+
+
+# going to sleep
+begin goToSleep
+      whenInState after_computer
+      whenInteractWith Bedt
+
+      message You go to sleep...
+      changeLevel room
+end goToSleep

@@ -5,15 +5,13 @@ class Action:
         self.waitingForInteraction = False
 
         self.changesState = False
-
         self.makesMessage = False
         self.messages = []
-
         self.changesObjectTiles = False
         self.changeObjectTiles = []
-
         self.changesObjectDialogue = False
         self.changeObjectDialogue = []
+        self.changesLevel = False
 
 
     # LITTLE TRIGGERS
@@ -43,6 +41,11 @@ class Action:
     def addChangeObjectDialogue(self, objectName, newDialogue):
         self.changesObjectDialogue = True
         self.changeObjectDialogue.append((objectName, newDialogue))
+
+    def setChangeLevel(self, level):
+        self.changesLevel = True
+        self.changeLevelTo = level
+
         
     def triggeredBy(self, state, interactedWith):
         if(self.waitingForState and self.whenInState != state):
@@ -55,6 +58,10 @@ class Action:
         return False
 
     def performAction(self, level):
+        print "action " + self.name + " triggered!"
+        if(self.changesLevel):
+            level.changeLevel(self.changeLevelTo)
+        
         if(self.changesState):
             level.changeState(self.changesStateTo)
 

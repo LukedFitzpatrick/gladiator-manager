@@ -272,6 +272,12 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
                 keysdown = []
                 interactedWithThisFrame = o.getName()
                                 
+        pygame.display.flip()
+
+        frameCounter+=1
+
+        # trigger any actions
+        level.checkActionTriggers(interactedWithThisFrame)
 
         # check if the level has any messages for us
         for s in level.getMessages():
@@ -281,13 +287,8 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
 
         level.emptyMessages()
 
-
-        pygame.display.flip()
-
-        frameCounter+=1
-
-        # check if we've triggered any actions
-        level.checkActionTriggers(interactedWithThisFrame)
         
+        # see if we can end the level
+        if(level.readyForNextLevel):
+            return level.nextLevel
 
-    

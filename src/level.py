@@ -12,6 +12,7 @@ class Level:
         self.tileIdToTile = tileIdToTile
         self.readFromFile(levelFile, agentFile, objectFile, actionFile)
         self.messages = []
+        self.readyForNextLevel = False
 
         
     def readFromFile(self, levelFile, agentFile, objectFile, actionFile):
@@ -135,11 +136,18 @@ class Level:
             # change the dialogue of an object
             elif(command == ACTION_LANG_CHANGE_OBJECT_DIALOGUE):
                 currAction.addChangeObjectDialogue(arguments[0], ' '.join(arguments[1:]))
+
+            # go to another level
+            elif(command == ACTION_LANG_CHANGE_LEVEL):
+                currAction.setChangeLevel(arguments[0])
                 
             # complete an action
             elif(command == ACTION_LANG_END_ACTION):
                 self.actions.append(currAction)
                 currAction = None
+
+            else:
+                print "ERROR: Unrecognised ACTION_LANG line " + line
 
 
     def checkActionTriggers(self, interactedWith):
@@ -161,6 +169,11 @@ class Level:
                 o.setDialogue(newDialogue)
         
 
+    def changeLevel(self, level):
+        # send a message to the overworld handler that we want to end the level
+        print "level changed!"
+        self.readyForNextLevel = True
+        self.nextLevel = level
                 
     def addMessage(self, message):
         self.messages.append(message)
