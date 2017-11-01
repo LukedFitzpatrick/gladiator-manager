@@ -114,7 +114,6 @@ class Level:
 
             # set the state that we have to be in for the action to trigger
             elif(command == ACTION_LANG_WHEN_IN_STATE):
-                # will break if .act file isn't correct
                 currAction.setWhenInState(arguments[0])
 
             # set the object we have to interact with for the action to trigger
@@ -127,11 +126,15 @@ class Level:
 
             # create a message when the action happens
             elif(command == ACTION_LANG_MESSAGE):
-                currAction.setMessage(' '.join(arguments))
+                currAction.addMessage(' '.join(arguments))
 
             # change the tile of an object
             elif(command == ACTION_LANG_CHANGE_OBJECT_TILE):
                 currAction.addChangeObjectTile(arguments[0], arguments[1])
+
+            # change the dialogue of an object
+            elif(command == ACTION_LANG_CHANGE_OBJECT_DIALOGUE):
+                currAction.addChangeObjectDialogue(arguments[0], ' '.join(arguments[1:]))
                 
             # complete an action
             elif(command == ACTION_LANG_END_ACTION):
@@ -151,6 +154,14 @@ class Level:
                 tile = self.tileIdToTile[newTileName]
                 o.tile = tile
 
+    def changeObjectDialogue(self, objectName, newDialogue):
+        # find the object and reset its tile
+        for o in self.objects:
+            if(o.name == objectName):
+                o.setDialogue(newDialogue)
+        
+
+                
     def addMessage(self, message):
         self.messages.append(message)
 

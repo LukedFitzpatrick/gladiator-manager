@@ -24,3 +24,6 @@ class Object:
 
     def getDialogue(self):
         return self.dialogue
+
+    def setDialogue(self, newDialogue):
+        self.dialogue = newDialogue

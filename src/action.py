@@ -5,10 +5,15 @@ class Action:
         self.waitingForInteraction = False
 
         self.changesState = False
+
         self.makesMessage = False
+        self.messages = []
 
         self.changesObjectTiles = False
         self.changeObjectTiles = []
+
+        self.changesObjectDialogue = False
+        self.changeObjectDialogue = []
 
 
     # LITTLE TRIGGERS
@@ -25,14 +30,19 @@ class Action:
         self.changesStateTo = state
         self.changesState = True
 
-    def setMessage(self, message):
-        self.message = message
+    def addMessage(self, message):
+        self.messages.append(message)
         self.makesMessage = True
 
 
     def addChangeObjectTile(self, objectName, newTileId):
         self.changesObjectTiles = True
         self.changeObjectTiles.append((objectName, newTileId))
+
+
+    def addChangeObjectDialogue(self, objectName, newDialogue):
+        self.changesObjectDialogue = True
+        self.changeObjectDialogue.append((objectName, newDialogue))
         
     def triggeredBy(self, state, interactedWith):
         if(self.waitingForState and self.whenInState != state):
@@ -49,9 +59,15 @@ class Action:
             level.changeState(self.changesStateTo)
 
         if(self.makesMessage):
-            level.addMessage(self.message)
+            for m in self.messages:
+                level.addMessage(m)
 
         if(self.changesObjectTiles):
             for e in self.changeObjectTiles:
                 (objName, newTile) = e
                 level.changeObjectTile(objName, newTile)
+
+        if(self.changesObjectDialogue):
+            for e in self.changeObjectDialogue:
+                (objName, newDialogue) = e
+                level.changeObjectDialogue(objName, newDialogue)
