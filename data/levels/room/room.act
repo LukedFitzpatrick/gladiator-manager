@@ -8,6 +8,7 @@ begin phoneRing
 
       changeStateTo phone_ringing
       message The phone's ringing!
+      message Better pick it up!
       changeObjectTile Deskl roomdeskr
       #changeObjectDialogue Deskl Picked up the phone...
 
