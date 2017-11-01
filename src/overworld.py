@@ -247,15 +247,19 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
         
         (playerFaceX, playerFaceY) = level.getPlayer().faceTile()
 
+        interactedWithThisFrame = ""
+        
         # check if the player is facing any agents
         a = level.agentAt(playerFaceX, playerFaceY)
         if(a != None):
             if (INTERACT_BUTTON in keysdown):
                 displayPressEnterMessage(screen, o, smallFont)
                 result = conversation(screen, clock, messageFont, a, smallFont)
+                interactedWithThisFrame = a.getName()
                 if(result == "RECRUIT"):
                     a.converser.setTree("ally")
                     level.getPlayer().addRecruit(a)
+
                 keysdown = []
 
         # check if player is facing any objects
@@ -266,10 +270,24 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
                 m = Message(o.getDialogue(), (0, 0, 0), (255, 255, 255), messageFont)
                 displayMessage(screen, m, clock, [""], smallFont)
                 keysdown = []
+                interactedWithThisFrame = o.getName()
+                                
 
-            
+        # check if the level has any messages for us
+        for s in level.getMessages():
+            m = Message(s, (255, 0, 0), (255, 255, 255), messageFont)
+            displayMessage(screen, m, clock, [""], smallFont)
+            keysdown = []
+
+        level.emptyMessages()
+
+
         pygame.display.flip()
+
         frameCounter+=1
 
+        # check if we've triggered any actions
+        level.checkActionTriggers(interactedWithThisFrame)
+        
 
     

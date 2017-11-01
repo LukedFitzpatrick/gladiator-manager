@@ -1,0 +1,14 @@
+start_state initial
+
+# Looking at the bookshelf makes the phone ring: todo change to door
+begin phoneRing
+
+      whenInState initial
+      whenInteractWith Bookshelfr
+
+      changeStateTo phone_ringing
+      message The phone's ringing!
+      changeObjectTile Deskl roomdeskr
+      #changeObjectDialogue Deskl Picked up the phone...
+
+end phoneRing

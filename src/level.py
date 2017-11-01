@@ -5,13 +5,16 @@ from random import randint
 from converser import *
 from tiles import *
 from object import *
+from action import *
 
 class Level:
-    def __init__(self, levelFile, agentFile, objectFile, tileIdToTile):
+    def __init__(self, levelFile, agentFile, objectFile, actionFile, tileIdToTile):
         self.tileIdToTile = tileIdToTile
-        self.readFromFile(levelFile, agentFile, objectFile)
+        self.readFromFile(levelFile, agentFile, objectFile, actionFile)
+        self.messages = []
+
         
-    def readFromFile(self, levelFile, agentFile, objectFile):
+    def readFromFile(self, levelFile, agentFile, objectFile, actionFile):
 
         # build the basic grid
         f = open(levelFile)
@@ -47,12 +50,10 @@ class Level:
         
         # read in the agents
         f = open(agentFile)
-        print agentFile
         lines = f.readlines()
         self.agents = []
         
         # lines[0] should contain the player
-        print lines[0]
         playerInfo = lines[0].split(',')
         playerTiles = [self.tileIdToTile[playerInfo[AGENT_UP_SPRITE_INDEX]],
                        self.tileIdToTile[playerInfo[AGENT_DOWN_SPRITE_INDEX]],
@@ -60,8 +61,7 @@ class Level:
                        self.tileIdToTile[playerInfo[AGENT_RIGHT_SPRITE_INDEX]]]
 
         self.player = Agent(playerInfo[AGENT_NAME_INDEX], playerTiles, None)
-        print playerInfo
-        
+
         self.player.setPosition(int(playerInfo[AGENT_X_INDEX]),
                                 int(playerInfo[AGENT_Y_INDEX]))
         self.agents.append(self.player)
@@ -82,7 +82,87 @@ class Level:
 
             self.agents.append(e)
 
-                    
+
+        # now read in the action file
+        f = open(actionFile)
+        lines = f.readlines()
+
+        self.actions = []
+        currAction = None
+        
+        for line in lines:
+            l = line.strip()
+
+            # skip empty lines and comments
+            if(len(l) == 0 or l[0]=='#'):
+                continue
+
+            words = l.split(' ')
+
+            command = words[0]
+            arguments = words[1:]
+
+            # set the starting state
+            if(command == ACTION_LANG_INITIAL_STATE):
+                self.state = arguments[0]
+                #print "Interpreted " + str(l) + " as me starting in state '" + str(arguments[0]) + "'"
+
+            # start a new action
+            elif(command == ACTION_LANG_BEGIN_ACTION):
+                currAction = Action(arguments[0])
+                #print "Interpreted " + str(l) + " as starting a new action '" + str(arguments[0]) + "'"
+
+            # set the state that we have to be in for the action to trigger
+            elif(command == ACTION_LANG_WHEN_IN_STATE):
+                # will break if .act file isn't correct
+                currAction.setWhenInState(arguments[0])
+
+            # set the object we have to interact with for the action to trigger
+            elif(command == ACTION_LANG_WHEN_INTERACT_WITH):
+                currAction.setWhenInteractWith(arguments[0])
+
+            # set the state we change to when the action happens
+            elif(command == ACTION_LANG_CHANGE_STATE_TO):
+                currAction.setChangeStateTo(arguments[0])
+
+            # create a message when the action happens
+            elif(command == ACTION_LANG_MESSAGE):
+                currAction.setMessage(' '.join(arguments))
+
+            # change the tile of an object
+            elif(command == ACTION_LANG_CHANGE_OBJECT_TILE):
+                currAction.addChangeObjectTile(arguments[0], arguments[1])
+                
+            # complete an action
+            elif(command == ACTION_LANG_END_ACTION):
+                self.actions.append(currAction)
+                currAction = None
+
+
+    def checkActionTriggers(self, interactedWith):
+        for a in self.actions:
+            if(a.triggeredBy(self.state, interactedWith)):
+               a.performAction(self)
+
+    def changeObjectTile(self, objectName, newTileName):
+        # find the object and reset its tile
+        for o in self.objects:
+            if(o.name == objectName):
+                tile = self.tileIdToTile[newTileName]
+                o.tile = tile
+
+    def addMessage(self, message):
+        self.messages.append(message)
+
+    def emptyMessages(self):
+        self.messages = []
+
+    def getMessages(self):
+        return self.messages
+        
+    def changeState(self, state):
+        print "Changed state from " + self.state + " to " + state
+        self.state = state
             
     def getTile(self, x, y):
         return self.grid[y][x]
