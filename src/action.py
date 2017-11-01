@@ -2,6 +2,7 @@ class Action:
     def __init__(self, name):
         self.name = name
         self.waitingForState = False
+        self.waitingForLightState = False
         self.waitingForInteraction = False
         self.whenInteractWith = []
 
@@ -14,18 +15,35 @@ class Action:
         self.changesObjectDialogue = False
         self.changeObjectDialogue = []
         self.changesLevel = False
-
-
+        self.invertLighting = False
+        self.setLighting = False
+        self.changesLightState = False
+        
     # LITTLE TRIGGERS
     def setWhenInState(self, state):
         self.whenInState = state
         self.waitingForState = True
 
+    def setWhenInLightState(self, state):
+        self.whenInLightState = state
+        self.waitingForLightState = True
+        
     def addWhenInteractWith(self, objectName):
         self.whenInteractWith.append(objectName)
         self.waitingForInteraction = True
 
     # ACTIONS
+    def setInvertLighting(self, i):
+        self.invertLighting = i
+
+    def setLight(self, r, g, b):
+        self.setLighting = True
+        self.light = (r, g, b)
+
+    def setChangeLightState(self, state):
+        self.changesLightState = True
+        self.changeLightState = state
+        
     def setChangeStateTo(self, state):
         self.changesStateTo = state
         self.changesState = True
@@ -53,8 +71,11 @@ class Action:
         self.setsObjective = True
         self.objective = objective
         
-    def triggeredBy(self, state, interactedWith):
+    def triggeredBy(self, state, lightState, interactedWith):
         if(self.waitingForState and self.whenInState != state):
+            return False
+        
+        if(self.waitingForLightState and self.whenInLightState != lightState):
             return False
         
         # are we triggered by an interaction?
@@ -62,11 +83,9 @@ class Action:
             for i in self.whenInteractWith:
                 if i == interactedWith:
                     return True
-
-        
-        
         return False
 
+    
     def performAction(self, level):
         print "action " + self.name + " triggered!"
         if(self.changesLevel):
@@ -91,3 +110,12 @@ class Action:
 
         if(self.setsObjective):
             level.setObjective(self.objective)
+
+        if(self.invertLighting):
+            level.ambientLight = map(lambda x: 255-x, level.ambientLight)
+
+        if(self.setLighting):
+            level.ambientLight = self.light
+
+        if(self.changesLightState):
+            level.lightState = self.changeLightState

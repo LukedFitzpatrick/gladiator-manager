@@ -10,16 +10,20 @@ from action import *
 class Level:
     def __init__(self, levelFile, agentFile, objectFile, actionFile, tileIdToTile):
         self.tileIdToTile = tileIdToTile
-        self.readFromFile(levelFile, agentFile, objectFile, actionFile)
-        self.messages = []
-        self.readyForNextLevel = False
-        self.torchOn = False
-        self.ambientLight = (50, 50, 100)
-        self.torchLight = (226, 244, 66)
 
         self.hasObjective = False
         self.objective = ""
 
+        self.lightingOn = True
+        self.ambientLight = (255, 255, 255)
+
+        self.torchOn = False
+        #self.torchLight = (226, 244, 66)
+
+        self.messages = []
+        self.readyForNextLevel = False
+
+        self.readFromFile(levelFile, agentFile, objectFile, actionFile)
         
     def readFromFile(self, levelFile, agentFile, objectFile, actionFile):
 
@@ -114,16 +118,39 @@ class Level:
             if(command == ACTION_LANG_INITIAL_STATE):
                 self.state = arguments[0]
                 #print "Interpreted " + str(l) + " as me starting in state '" + str(arguments[0]) + "'"
-            
+
+            elif(command == ACTION_LANG_START_LIGHT_STATE):
+                self.lightState = arguments[0]
+                
+            elif(command == ACTION_LANG_START_LIGHT):
+                self.ambientLight = (int(arguments[0]),
+                                     int(arguments[1]),
+                                     int(arguments[2]))
+
+
             # start a new action
             elif(command == ACTION_LANG_BEGIN_ACTION):
                 currAction = Action(arguments[0])
                 #print "Interpreted " + str(l) + " as starting a new action '" + str(arguments[0]) + "'"
 
+            elif(command == ACTION_LANG_INVERT_LIGHTING):
+                currAction.setInvertLighting(True)
+
+            elif(command == ACTION_LANG_SET_LIGHT):
+                currAction.setLight(int(arguments[0]),
+                                    int(arguments[1]),
+                                    int(arguments[2]))
+
+            elif(command == ACTION_LANG_CHANGE_LIGHT_STATE):
+                currAction.setChangeLightState(arguments[0])
+                
             # set the state that we have to be in for the action to trigger
             elif(command == ACTION_LANG_WHEN_IN_STATE):
                 currAction.setWhenInState(arguments[0])
 
+            elif(command == ACTION_LANG_WHEN_IN_LIGHT_STATE):
+                currAction.setWhenInLightState(arguments[0])
+                
             # set the object we have to interact with for the action to trigger
             elif(command == ACTION_LANG_WHEN_INTERACT_WITH):
                 currAction.addWhenInteractWith(arguments[0])
@@ -166,8 +193,9 @@ class Level:
 
 
     def checkActionTriggers(self, interactedWith):
+        (s, ls) = (self.state, self.lightState)
         for a in self.actions:
-            if(a.triggeredBy(self.state, interactedWith)):
+            if(a.triggeredBy(s, ls, interactedWith)):
                a.performAction(self)
 
     def changeObjectTile(self, objectName, newTileName):

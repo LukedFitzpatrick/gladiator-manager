@@ -1,4 +1,23 @@
-start_state initial
+startState initial
+startLightState bright
+startLight 255 255 255
+
+# interacting with the light switch swaps the light
+begin lightSwitchDark
+      whenInLightState bright
+      whenInteractWith Lightswitch
+
+      changeLightStateTo dark
+      setLight 50 50 50
+end lightSwitchDark
+
+begin lightSwitchBright
+      whenInLightState dark
+      whenInteractWith Lightswitch
+
+      changeLightStateTo bright
+      setLight 255 255 255
+end lightSwitchBright
 
 # Looking at the bookshelf makes the phone ring: todo change to door
 begin phoneRing
@@ -20,15 +39,15 @@ begin pickupPhone
 
       changeStateTo after_phone
       objective none
-      message Hello! This is your mother!
-      message I've been held up here - I won't be home until late!
-      message Now you get some sleep! Don't spend too long on that computer of yours!
+      message Hi Dad! It's me, Eva!
+      message I'm still here with my friends - I won't be home until late!
+      message Now you get some sleep! Don't stay up all night worrying about me again!
       message Ok ... .... Ok - Bye Now!
 
       changeObjectTile Deskl roomdeskl
       changeObjectDialogue Deskl Phone's quiet now.
-      changeObjectDialogue Bedt Surely a little bit of computer time won't hurt...
-      changeObjectDialogue Bedb Surely a little bit of computer time won't hurt...
+      changeObjectDialogue Bedt You can't sleep...
+      changeObjectDialogue Bedb You can't sleep...
 end pickupPhone
 
 
@@ -40,10 +59,10 @@ begin readComputer
       changeStateTo after_computer
       message Reddit.com: "Controversial AI Researcher Announces HUGE BREAKTHROUGH"
       message ... more clickbait ...
-      changeObjectDialogue Bedt Your bed sure looks comfortable!
-      changeObjectDialogue Bedb Your bed sure looks comfortable!
+      message -- yawn --
+      changeObjectDialogue Bedt Guess Eva's right: better hit the sack!
+      changeObjectDialogue Bedb Guess Eva's right: better hit the sack!
 end readComputer
-
 
 # going to sleep
 begin goToSleep

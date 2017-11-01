@@ -238,7 +238,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
                                         
 
         # do lighting/torch lighting
-        if(level.torchOn):
+        if(level.lightingOn):
             filter = pygame.surface.Surface((GAME_WIDTH, GAME_HEIGHT))
             filter.fill(map(lambda x:255-x, level.ambientLight))
 
@@ -249,20 +249,21 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
             deltaX = playerFaceX - playerX
             deltaY = playerFaceY - playerY
 
-            torchX = playerX
-            torchY = playerY
-            lightingDone = False
+            if(level.torchOn):
+                torchX = playerX
+                torchY = playerY
+                lightingDone = False
 
-            while not lightingDone:
-                if(not level.canWalk(torchX, torchY, level.getPlayer())):
-                   lightingDone = True
-                screenX = (torchX-cameraX)*TILE_WIDTH + cameraSlideXPixels
-                screenY = (torchY-cameraY)*TILE_HEIGHT + cameraSlideYPixels
-                pygame.draw.rect(filter, map(lambda x:255-x, level.torchLight),
-                                 pygame.Rect(screenX, screenY,
-                                             TILE_WIDTH, TILE_HEIGHT), 0)            
-                torchX += deltaX
-                torchY += deltaY
+                while not lightingDone:
+                    if(not level.canWalk(torchX, torchY, level.getPlayer())):
+                       lightingDone = True
+                    screenX = (torchX-cameraX)*TILE_WIDTH + cameraSlideXPixels
+                    screenY = (torchY-cameraY)*TILE_HEIGHT + cameraSlideYPixels
+                    pygame.draw.rect(filter, map(lambda x:255-x, level.torchLight),
+                                     pygame.Rect(screenX, screenY,
+                                                 TILE_WIDTH, TILE_HEIGHT), 0)            
+                    torchX += deltaX
+                    torchY += deltaY
 
             screen.blit(filter, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
                     
