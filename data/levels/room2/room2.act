@@ -38,4 +38,6 @@ begin foundTorch
       message You got the torch!
       message (mash spacebar to wind the torch and charge its battery)
       getTorch
+      changeStateTo find_eva
+      changeObjectDialogue Drawersb Always handy to keep a torch around the house.
 end foundTorch

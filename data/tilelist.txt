@@ -7,7 +7,7 @@ roombedbottom,data/tiles/roombedbottom.png,True,
 roomdeskl,data/tiles/roomdeskl.png,True,
 roomdesklringing,[data/tiles/roomdesklringing1.png data/tiles/roomdesklringing2.png],True,
 roomdeskr,data/tiles/roomdeskr.png,True,
-roomdeskrdead,data/tiles/roomdeskrdead,True
+roomdeskrdead,data/tiles/roomdeskrdead.png,True,
 bookshelfl,data/tiles/bookshelfl.png,True,
 bookshelfr,data/tiles/bookshelfr.png,True,
 drawersb,data/tiles/drawersb.png,True,
