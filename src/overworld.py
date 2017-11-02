@@ -88,6 +88,18 @@ def displayObjective(screen, font, objective):
 
     screen.blit(label, (GAME_WIDTH-label.get_width(), 0))
 
+def drawTorchBar(screen, torchPercent, font):
+    # the outline
+    pygame.draw.rect(screen,(255,255,255),
+                     (TORCH_BAR_X,TORCH_BAR_Y,TORCH_BAR_WIDTH,TORCH_BAR_HEIGHT), 2)
+
+    # the fill
+    pygame.draw.rect(screen, TORCH_BAR_COLOUR,
+                     (TORCH_BAR_X, TORCH_BAR_Y,
+                      TORCH_BAR_WIDTH*(torchPercent/100.0),TORCH_BAR_HEIGHT), 0)
+                    
+    
+    
 
 # eventually pass level/scene objects into here
 def playOverworld(screen, clock, level, messageFont, smallFont):
@@ -252,6 +264,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
             deltaY = playerFaceY - playerY
 
             if(level.torchOn):
+                
                 torchX = playerX
                 torchY = playerY
                 lightingDone = False
@@ -271,7 +284,9 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
                 
             screen.blit(filter, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
                     
-        
+        if(level.torchOn):
+            drawTorchBar(screen, level.getTorchPercentage(), smallFont)
+
         # drawing objective has to go after lighting
         if(level.hasObjective):
             displayObjective(screen, smallFont, level.objective)

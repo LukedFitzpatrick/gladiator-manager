@@ -252,9 +252,14 @@ class Level:
         self.torchOn = True
         self.torchLight = (255, 255, 255)
 
+    def getTorchPercentage(self):
+        (r, g, b) = self.torchLight
+        return (r/255.0)*100.0
+        
     def chargeTorch(self, amount):
         self.torchLight = map(lambda x: x+amount, self.torchLight)
         self.torchLight = map(lambda x: min(255, x), self.torchLight)
+        self.torchLight = map(lambda x: max(0, x), self.torchLight)
         
     def changeState(self, state):
         print "Changed state from " + self.state + " to " + state
