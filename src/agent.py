@@ -1,11 +1,14 @@
 from constants import *
 
 class Agent:
-    def __init__(self, name, tiles, attackTiles, facing="down"):
+    def __init__(self, name, tiles, attackTiles, fighter, facing="down"):
         self.tiles = tiles
-
+        self.fighter = fighter
         self.facing = facing
 
+        self.hasKnife = True
+        self.currentlyKnifing = False
+        
         self.recruits = []
         
         self.following = None
@@ -37,9 +40,11 @@ class Agent:
     def startAttack(self):
         print "Inside player attack!"
         self.currTiles = self.attackTiles
+        self.currentlyKnifing = True
 
     def endAttack(self):
         self.currTiles = self.tiles
+        self.currentlyKnifing = False
         
     def getName(self):
         return self.name

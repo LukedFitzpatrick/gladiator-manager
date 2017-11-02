@@ -6,6 +6,7 @@ from converser import *
 from tiles import *
 from object import *
 from action import *
+from fighter import *
 
 class Level:
     def __init__(self, levelFile, agentFile, objectFile, actionFile, tileIdToTile):
@@ -67,30 +68,14 @@ class Level:
         lines = f.readlines()
         self.agents = []
         
-        # lines[0] should contain the player
-        playerInfo = lines[0].split(',')
-        playerTiles = [self.tileIdToTile[playerInfo[AGENT_UP_SPRITE_INDEX]],
-                       self.tileIdToTile[playerInfo[AGENT_DOWN_SPRITE_INDEX]],
-                       self.tileIdToTile[playerInfo[AGENT_LEFT_SPRITE_INDEX]],
-                       self.tileIdToTile[playerInfo[AGENT_RIGHT_SPRITE_INDEX]]]
-
-        
-        playerAttackTiles = [self.tileIdToTile[playerInfo[AGENT_UP_ATTACK_SPRITE_INDEX]],
-         self.tileIdToTile[playerInfo[AGENT_DOWN_ATTACK_SPRITE_INDEX]],
-         self.tileIdToTile[playerInfo[AGENT_LEFT_ATTACK_SPRITE_INDEX]],
-         self.tileIdToTile[playerInfo[AGENT_RIGHT_ATTACK_SPRITE_INDEX]]]
-
-        print playerTiles
-        print playerAttackTiles
-        
-        self.player = Agent(playerInfo[AGENT_NAME_INDEX], playerTiles, playerAttackTiles)
-
-        self.player.setPosition(int(playerInfo[AGENT_X_INDEX]),
-                                int(playerInfo[AGENT_Y_INDEX]))
-        self.agents.append(self.player)
-
-        for line in lines[1:]:
+        for line in lines:
             agentInfo = line.split(',')
+
+            name = agentInfo[AGENT_NAME_INDEX]
+
+            health = int(agentInfo[AGENT_HEALTH_INDEX])
+            knifeDamage = int(agentInfo[AGENT_KNIFE_DAMAGE_INDEX])
+
             
             eTiles = [self.tileIdToTile[agentInfo[AGENT_UP_SPRITE_INDEX]],
                       self.tileIdToTile[agentInfo[AGENT_DOWN_SPRITE_INDEX]],
@@ -98,13 +83,21 @@ class Level:
                       self.tileIdToTile[agentInfo[AGENT_RIGHT_SPRITE_INDEX]]]
 
 
-            e = Agent(agentInfo[AGENT_NAME_INDEX], eTiles, eTiles)
+            eKnifeTiles = [self.tileIdToTile[agentInfo[AGENT_UP_KNIFE_SPRITE_INDEX]],
+                            self.tileIdToTile[agentInfo[AGENT_DOWN_KNIFE_SPRITE_INDEX]],
+                            self.tileIdToTile[agentInfo[AGENT_LEFT_KNIFE_SPRITE_INDEX]],
+                            self.tileIdToTile[agentInfo[AGENT_RIGHT_KNIFE_SPRITE_INDEX]]]
+
+
+            f = Fighter(name + "Fighter", health, knifeDamage)
+            e = Agent(name, eTiles, eKnifeTiles, f)
 
             e.setPosition(int(agentInfo[AGENT_X_INDEX]),
                           int(agentInfo[AGENT_Y_INDEX]))
 
             self.agents.append(e)
 
+        self.player = self.agents[0]
 
         # now read in the action file
         f = open(actionFile)

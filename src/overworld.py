@@ -249,22 +249,31 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
                 if(NAMES_ABOVE_AGENTS):
                     label = smallFont.render(a.getName(), 1, (0, 0, 0))
                     screen.blit(label, (screenX, screenY+TILE_HEIGHT))
-                                        
 
-        # combat!
-        if(KNIFE_BUTTON in keysdown):
-            keysdown.remove(KNIFE_BUTTON)
-            if(knifeFrames == 0):
-                knifeFrames = KNIFE_FRAMES
-                level.getPlayer().startAttack()
+                if(HEALTHBARS):
+                    pygame.draw.rect(screen,HEALTHBAR_OUTLINE_COLOUR,
+                                     (screenX,screenY,HEALTHBAR_WIDTH,HEALTHBAR_HEIGHT), 1)
 
-        if(knifeFrames > 0):
-            print "KNIFE"
-            knifeFrames -= 1
-            if(knifeFrames == 0):
-                level.getPlayer().endAttack()
-            
+                    pygame.draw.rect(screen,HEALTHBAR_FILL_COLOUR,
+                                     (screenX,screenY,
+                                      HEALTHBAR_WIDTH*a.fighter.getHealthPercent/100.0,
+                                      ,HEALTHBAR_HEIGHT), 0)
+
                     
+        # combat! Knifing
+        if(level.getPlayer().hasKnife):
+            if(KNIFE_BUTTON in keysdown):
+                keysdown.remove(KNIFE_BUTTON)
+                if(knifeFrames == 0):
+                    knifeFrames = KNIFE_FRAMES
+                    level.getPlayer().startAttack()
+
+            if(knifeFrames > 0):
+                knifeFrames -= 1
+                if(knifeFrames == 0):
+                    level.getPlayer().endAttack()
+
+
         # do lighting/torch lighting
         if(level.lightingOn):
             filter = pygame.surface.Surface((GAME_WIDTH, GAME_HEIGHT))
@@ -308,6 +317,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
         (playerFaceX, playerFaceY) = level.getPlayer().faceTile()
 
         interactedWithThisFrame = ""
+
         
         # check if the player is facing any agents
         a = level.agentAt(playerFaceX, playerFaceY)
@@ -317,6 +327,9 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
                 #result = conversation(screen, clock, messageFont, a, smallFont)
                 interactedWithThisFrame = a.getName()
                 keysdown = []
+            if (level.getPlayer().currentlyKnifing):
+                a.fighter.dealDamage(level.getPlayer().fighter.baseKnifeDamage)
+                level.getPlayer().currentlyKnifing = False
 
         # check if player is facing any objects
         o = level.objectAt(playerFaceX, playerFaceY)
@@ -329,11 +342,24 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
                 interactedWithThisFrame = o.getName()
 
 
-                
+
+        
         pygame.display.flip()
 
         frameCounter+=1
 
+        stillAlive = []
+        nowDead = []
+        # check for deaths
+        for a in level.agents:
+            if (not a.fighter.alive):
+                nowDead.append(a)
+            else:
+                stillAlive.append(a)
+
+        level.agents = stillAlive
+
+        # TODO pass now dead to check action triggers eventually
         # trigger any actions
         level.checkActionTriggers(interactedWithThisFrame, frameCounter)
 
