@@ -60,16 +60,27 @@ begin readComputer
       message Reddit.com: "Controversial AI Researcher Announces HUGE BREAKTHROUGH"
       message ... more clickbait ...
       message -- yawn --
-      changeObjectDialogue Bedt Guess Eva's right: better hit the sack!
-      changeObjectDialogue Bedb Guess Eva's right: better hit the sack!
+      changeObjectDialogue Bedt Guess Eva's right: no use staying up all night!
+      changeObjectDialogue Bedb Guess Eva's right: no use staying up all night!
 end readComputer
 
 # going to sleep
 begin goToSleep
       whenInState after_computer
+      whenInLightState bright
       whenInteractWith Bedt
       whenInteractWith Bedb
 
-      message You go to sleep...
+      message You can't sleep with the light on...
+end goToSleep
+
+# going to sleep
+begin goToSleep
+      whenInState after_computer
+      whenInLightState dark
+      whenInteractWith Bedt
+      whenInteractWith Bedb
+
+      message You fall into a deep sleep...
       changeLevel room2
 end goToSleep
