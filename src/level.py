@@ -127,6 +127,9 @@ class Level:
                                      int(arguments[1]),
                                      int(arguments[2]))
 
+            elif(command == ACTION_LANG_START_TORCH):
+                self.setTorch(True)                                   
+
             elif(command == ACTION_LANG_START_TORCH_LIGHT):
                 self.torchLight = (int(arguments[0]),
                                      int(arguments[1]),
@@ -250,7 +253,6 @@ class Level:
 
     def setTorch(self, val):
         self.torchOn = True
-        self.torchLight = (255, 255, 255)
 
     def getTorchPercentage(self):
         (r, g, b) = self.torchLight

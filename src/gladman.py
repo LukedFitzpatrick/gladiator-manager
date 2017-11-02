@@ -52,7 +52,7 @@ print "Version " + VERSION
 
 
 #nextLevel = "room"
-nextLevel = "room2"
+nextLevel = "searchTheHouseForEva"
 while True:
     l = Level("data/levels/"+ nextLevel + "/" + nextLevel + ".lvl",
               "data/levels/"+ nextLevel + "/" + nextLevel + ".age",
