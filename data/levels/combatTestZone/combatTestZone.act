@@ -1,0 +1,4 @@
+startState initial
+startLight 255 255 255
+startTorchLight 255 255 255
+startTorch

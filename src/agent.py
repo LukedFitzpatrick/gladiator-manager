@@ -1,7 +1,7 @@
 from constants import *
 
 class Agent:
-    def __init__(self, name, tiles, converser, facing="down"):
+    def __init__(self, name, tiles, attackTiles, facing="down"):
         self.tiles = tiles
 
         self.facing = facing
@@ -11,16 +11,19 @@ class Agent:
         self.following = None
         self.follower = None
         
-        if(converser):
-            self.converser = converser
-            self.converser.setAgent(self)
+        # if(converser):
+        #     self.converser = converser
+        #     self.converser.setAgent(self)
 
+        self.attackTiles = attackTiles
+
+        self.currTiles = self.tiles
         
         self.facingToTileMap = {}
-        self.facingToTileMap["up"] = tiles[0]
-        self.facingToTileMap["down"] = tiles[1]
-        self.facingToTileMap["left"] = tiles[2]
-        self.facingToTileMap["right"] = tiles[3]
+        self.facingToTileMap["up"] = 0
+        self.facingToTileMap["down"] = 1
+        self.facingToTileMap["left"] = 2
+        self.facingToTileMap["right"] = 3
         
         self.name = name
 
@@ -31,12 +34,19 @@ class Agent:
 
         
 
+    def startAttack(self):
+        print "Inside player attack!"
+        self.currTiles = self.attackTiles
+
+    def endAttack(self):
+        self.currTiles = self.tiles
+        
     def getName(self):
         return self.name
     
     def getImage(self):
         # todo animations go here
-        return self.facingToTileMap[self.facing].getImage()
+        return self.currTiles[self.facingToTileMap[self.facing]].getImage()
 
     
     def setPosition(self, x, y):

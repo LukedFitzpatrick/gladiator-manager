@@ -122,7 +122,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
 
     light = pygame.image.load("data/circle.png")
     
-    
+    knifeFrames = 0
     while not done:
         clock.tick(FRAME_RATE)
         
@@ -251,6 +251,20 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
                     screen.blit(label, (screenX, screenY+TILE_HEIGHT))
                                         
 
+        # combat!
+        if(KNIFE_BUTTON in keysdown):
+            keysdown.remove(KNIFE_BUTTON)
+            if(knifeFrames == 0):
+                knifeFrames = KNIFE_FRAMES
+                level.getPlayer().startAttack()
+
+        if(knifeFrames > 0):
+            print "KNIFE"
+            knifeFrames -= 1
+            if(knifeFrames == 0):
+                level.getPlayer().endAttack()
+            
+                    
         # do lighting/torch lighting
         if(level.lightingOn):
             filter = pygame.surface.Surface((GAME_WIDTH, GAME_HEIGHT))

@@ -11,6 +11,8 @@ class Level:
     def __init__(self, levelFile, agentFile, objectFile, actionFile, tileIdToTile):
         self.tileIdToTile = tileIdToTile
 
+        self.lightState = ""
+        self.state = ""
         self.hasObjective = False
         self.objective = ""
 
@@ -72,7 +74,16 @@ class Level:
                        self.tileIdToTile[playerInfo[AGENT_LEFT_SPRITE_INDEX]],
                        self.tileIdToTile[playerInfo[AGENT_RIGHT_SPRITE_INDEX]]]
 
-        self.player = Agent(playerInfo[AGENT_NAME_INDEX], playerTiles, None)
+        
+        playerAttackTiles = [self.tileIdToTile[playerInfo[AGENT_UP_ATTACK_SPRITE_INDEX]],
+         self.tileIdToTile[playerInfo[AGENT_DOWN_ATTACK_SPRITE_INDEX]],
+         self.tileIdToTile[playerInfo[AGENT_LEFT_ATTACK_SPRITE_INDEX]],
+         self.tileIdToTile[playerInfo[AGENT_RIGHT_ATTACK_SPRITE_INDEX]]]
+
+        print playerTiles
+        print playerAttackTiles
+        
+        self.player = Agent(playerInfo[AGENT_NAME_INDEX], playerTiles, playerAttackTiles)
 
         self.player.setPosition(int(playerInfo[AGENT_X_INDEX]),
                                 int(playerInfo[AGENT_Y_INDEX]))
@@ -86,8 +97,8 @@ class Level:
                       self.tileIdToTile[agentInfo[AGENT_LEFT_SPRITE_INDEX]],
                       self.tileIdToTile[agentInfo[AGENT_RIGHT_SPRITE_INDEX]]]
 
-            c = Converser(agentInfo[AGENT_CONVERSER_INDEX])
-            e = Agent(agentInfo[AGENT_NAME_INDEX], eTiles, c)
+
+            e = Agent(agentInfo[AGENT_NAME_INDEX], eTiles, eTiles)
 
             e.setPosition(int(agentInfo[AGENT_X_INDEX]),
                           int(agentInfo[AGENT_Y_INDEX]))

@@ -38,34 +38,28 @@ Your house:
 Suddenly, a car screeches to a stop outside your house (floodlights
 etc.) It's your neighbour/friend Jim. He gets out of the car.
 You: "Jim what's happening, the powers out -- where's Eva!".
-Jim: "There's bigger problems than Eva now, we've got to get out of here fast! It's spreading - you've got them in the house right?"
-You: "What are you talking about?"
-Jim: "The virus! Don't you know? No time to explain now, just get inside, get something to protect yourself with and don't go near the computer!"
-
-You go inside, rummage around and find a pocket knife/a kitchen knife etc.
-
-(you now have a torch and a knife. You can only equip one. Both are used with spacebar)
-
-You come back outside, there are more cars racing by and people
-running around.
-
-Jim: "Hurry up, we don't have much time. There's already people trying
-to stock up on fuel and food: now that the grid's gone down it's every
-man for himself"
-
-A group of men walk up:
-"How much petrol is left in that car?"
-"Well why don't we take a look?"
-Jim: Stop right there! Or I'll make you stop!
-"You and what army? Him? HAH!"
-Jim: Take one more step and I'll ...
-"We don't have time for games"
-
-The bandits kill Jim. Before he dies he gives you a piece of paper.
-
-Bandits: you won't give us any trouble, will you?
+Jim: There's no time to explain! Take this, they're going to kill me!
+(gives you papers)
+You: "Who ... Jim wait!"
+Jim: "Guard those papers with your life! They're the only way to stop this madness!"
+Jim: "No time, if any of the Eye Corporation goons come, tell them nothing"
+You: "I know nothing! How could I possibly tell them anything!?"
+Jim: "Thanks, I appreciate it, I'm out of here"
 
 
+Jim walks back to the car, but before he can get in, some goons walk up.
 
+Goon 1: "That's him!"
+Goon 2: "Well don't just stand there, kill him!"
+Goon 1 kills Jim
+Goon 2: "Now get the papers!"
+...
+Goon 1: "Where are they!"
+Goon 2: "I don't know, this guy must have them!" (points torch at you)
+Goon 1: "Well kill him as well!"
+
+(you run back into house to find a weapon as they walk in)
+
+You kill the goons.
 
 
