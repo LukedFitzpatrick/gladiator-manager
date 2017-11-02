@@ -8,6 +8,8 @@
 7,data/tiles/carpet4.png,False,
 roombedtop,data/tiles/roombedtop.png,True,
 roombedbottom,data/tiles/roombedbottom.png,True,
+evabedtop,data/tiles/evabedtop.png,True,
+evabedbottom,data/tiles/evabedbottom.png,True,
 roomdeskl,data/tiles/roomdeskl.png,True,
 roomdesklringing,[data/tiles/roomdesklringing1.png data/tiles/roomdesklringing2.png],True,
 roomdeskr,data/tiles/roomdeskr.png,True,
