@@ -1,12 +1,41 @@
-start_state initial
+startState initial
+startLightState dark
+startLight 50 50 50
+startTorchLight 255 255 255
+
 
 begin start
       whenInState initial
 
-      changeStateTo find_torch
-
+      objective Switch on the light
       message ...
       message ... What time is it?
-      message I can't see a thing, where's that torch
-      objective Find the torch
+      message ...
+      message I wonder if Eva made it home yet?
+      message I can't see a thing, it's too dark in here
+      changeStateTo find_switch
 end start
+
+
+begin powersOut
+      whenInState find_switch
+      whenInteractWith Lightswitch
+
+      message Huh? It's not working?
+      message Blackout?
+      message I know I have a torch around here somewhere...
+      objective Find the torch
+      changeObjectDialogue Lightswitch It's not working...
+      changeObjectDialogue Drawersb There it is!
+      changeStateTo find_torch
+
+end powersOut
+
+begin foundTorch
+      whenInState find_torch
+      whenInteractWith Drawersb
+
+      message You got the torch!
+      message (mash spacebar to wind the torch and charge its battery)
+      getTorch
+end foundTorch

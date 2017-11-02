@@ -126,6 +126,11 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
                     keysdown.remove(event.key)                
 
 
+        # handle torch charging
+        if(level.torchOn and TORCH_BUTTON in keysdown):
+            keysdown.remove(TORCH_BUTTON)
+            level.chargeTorch(TORCH_INCREMENT_PER_MASH)
+                    
         # handle key presses
         if (moveLock == 0):
             if(LEFT_BUTTON in keysdown):
@@ -177,9 +182,6 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
         # render
         screen.fill(FILL_COLOUR)
 
-        # draw the objective nice and early
-        if(level.hasObjective):
-            displayObjective(screen, smallFont, level.objective)
 
         
         # draw the level grid
@@ -265,11 +267,15 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
                     torchX += deltaX
                     torchY += deltaY
 
+                level.chargeTorch(-TORCH_DECREMENT_PER_FRAME)
+                
             screen.blit(filter, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
                     
         
-        
-        
+        # drawing objective has to go after lighting
+        if(level.hasObjective):
+            displayObjective(screen, smallFont, level.objective)
+
         (playerFaceX, playerFaceY) = level.getPlayer().faceTile()
 
         interactedWithThisFrame = ""

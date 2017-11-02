@@ -18,6 +18,7 @@ class Action:
         self.invertLighting = False
         self.setLighting = False
         self.changesLightState = False
+        self.getsTorch = False
         
     # LITTLE TRIGGERS
     def setWhenInState(self, state):
@@ -33,6 +34,9 @@ class Action:
         self.waitingForInteraction = True
 
     # ACTIONS
+    def setGetTorch(self, torch):
+        self.getsTorch = True
+    
     def setInvertLighting(self, i):
         self.invertLighting = i
 
@@ -83,7 +87,9 @@ class Action:
             for i in self.whenInteractWith:
                 if i == interactedWith:
                     return True
-        return False
+            return False
+
+        return True
 
     
     def performAction(self, level):
@@ -119,3 +125,6 @@ class Action:
 
         if(self.changesLightState):
             level.lightState = self.changeLightState
+
+        if(self.getsTorch):
+            level.setTorch(True)

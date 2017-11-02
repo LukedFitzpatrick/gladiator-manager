@@ -44,21 +44,22 @@ tileIdToTile = loadTiles("data/tilelist.txt")
 
 
 screen = pygame.display.set_mode([GAME_WIDTH, GAME_HEIGHT])
-pygame.display.set_caption("Gladiator Manager")
+pygame.display.set_caption(VERSION)
 
 clock = pygame.time.Clock()
 
-print "Gladiator Manager Version " + VERSION
+print "Version " + VERSION
 
 
-nextLevel = "room"
+#nextLevel = "room"
+nextLevel = "room2"
 while True:
     l = Level("data/levels/"+ nextLevel + "/" + nextLevel + ".lvl",
               "data/levels/"+ nextLevel + "/" + nextLevel + ".age",
               "data/levels/"+ nextLevel + "/" + nextLevel + ".obj",
               "data/levels/"+ nextLevel + "/" + nextLevel + ".act",
               tileIdToTile)
-
+    
     nextLevel = playOverworld(screen, clock, l, messageFont, nameFont)
 
 

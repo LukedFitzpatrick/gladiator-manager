@@ -127,6 +127,11 @@ class Level:
                                      int(arguments[1]),
                                      int(arguments[2]))
 
+            elif(command == ACTION_LANG_START_TORCH_LIGHT):
+                self.torchLight = (int(arguments[0]),
+                                     int(arguments[1]),
+                                     int(arguments[2]))
+
 
             # start a new action
             elif(command == ACTION_LANG_BEGIN_ACTION):
@@ -181,7 +186,11 @@ class Level:
                     currAction.setObjective("")
                 else:
                     currAction.setObjective(' '.join(arguments))
-                
+
+            # get the torch
+            elif(command == ACTION_LANG_GET_TORCH):
+                currAction.setGetTorch(True)
+            
             # complete an action
             elif(command == ACTION_LANG_END_ACTION):
                 self.actions.append(currAction)
@@ -214,6 +223,7 @@ class Level:
     def setObjective(self, objective):
         self.objective = objective
         self.hasObjective = True
+        print "set an objective: " + self.objective
 
 
     def cancelObjective(self):
@@ -237,6 +247,14 @@ class Level:
 
     def getMessages(self):
         return self.messages
+
+    def setTorch(self, val):
+        self.torchOn = True
+        self.torchLight = (255, 255, 255)
+
+    def chargeTorch(self, amount):
+        self.torchLight = map(lambda x: x+amount, self.torchLight)
+        self.torchLight = map(lambda x: min(255, x), self.torchLight)
         
     def changeState(self, state):
         print "Changed state from " + self.state + " to " + state
