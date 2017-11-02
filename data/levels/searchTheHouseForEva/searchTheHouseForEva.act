@@ -1,6 +1,6 @@
 startState initial
 startLightState dark
-startLight 0 0 200
+startLight 50 50 200
 startTorchLight 255 255 255
 startTorch
 
