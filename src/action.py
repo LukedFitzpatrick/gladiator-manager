@@ -19,7 +19,8 @@ class Action:
         self.setLighting = False
         self.changesLightState = False
         self.getsTorch = False
-        
+        self.triggersEveryNFrames = False
+
     # LITTLE TRIGGERS
     def setWhenInState(self, state):
         self.whenInState = state
@@ -33,6 +34,10 @@ class Action:
         self.whenInteractWith.append(objectName)
         self.waitingForInteraction = True
 
+    def setEveryNFrames(self, frames):
+        self.triggersEveryNFrames = True
+        self.everyNFrames = frames
+        
     # ACTIONS
     def setGetTorch(self, torch):
         self.getsTorch = True
@@ -75,11 +80,14 @@ class Action:
         self.setsObjective = True
         self.objective = objective
         
-    def triggeredBy(self, state, lightState, interactedWith):
+    def triggeredBy(self, state, lightState, interactedWith, frameCount):
         if(self.waitingForState and self.whenInState != state):
             return False
         
         if(self.waitingForLightState and self.whenInLightState != lightState):
+            return False
+
+        if(self.triggersEveryNFrames and frameCount%self.everyNFrames != 0):
             return False
         
         # are we triggered by an interaction?
@@ -128,3 +136,5 @@ class Action:
 
         if(self.getsTorch):
             level.setTorch(True)
+
+            

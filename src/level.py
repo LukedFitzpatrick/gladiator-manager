@@ -139,7 +139,6 @@ class Level:
             # start a new action
             elif(command == ACTION_LANG_BEGIN_ACTION):
                 currAction = Action(arguments[0])
-                #print "Interpreted " + str(l) + " as starting a new action '" + str(arguments[0]) + "'"
 
             elif(command == ACTION_LANG_INVERT_LIGHTING):
                 currAction.setInvertLighting(True)
@@ -156,6 +155,9 @@ class Level:
             elif(command == ACTION_LANG_WHEN_IN_STATE):
                 currAction.setWhenInState(arguments[0])
 
+            elif(command == ACTION_LANG_EVERY_N_FRAMES):
+                currAction.setEveryNFrames(int(arguments[0]))
+                
             elif(command == ACTION_LANG_WHEN_IN_LIGHT_STATE):
                 currAction.setWhenInLightState(arguments[0])
                 
@@ -204,10 +206,10 @@ class Level:
                 print "ERROR: Unrecognised ACTION_LANG line " + line
 
 
-    def checkActionTriggers(self, interactedWith):
+    def checkActionTriggers(self, interactedWith, frameCount):
         (s, ls) = (self.state, self.lightState)
         for a in self.actions:
-            if(a.triggeredBy(s, ls, interactedWith)):
+            if(a.triggeredBy(s, ls, interactedWith, frameCount)):
                a.performAction(self)
 
     def changeObjectTile(self, objectName, newTileName):
@@ -257,7 +259,18 @@ class Level:
     def getTorchPercentage(self):
         (r, g, b) = self.torchLight
         return (r/255.0)*100.0
-        
+
+    def needTorchLighting(self):
+        (r, g, b) = self.torchLight
+        (ar, ag, ab) = self.ambientLight
+        return(ar<r or ag<g or ab<b)
+
+    def getTorchLight(self):
+        (r, g, b) = self.torchLight
+        (ar, ag, ab) = self.ambientLight
+
+        return(max(r, ar), max(g, ag), max(b, ab))
+    
     def chargeTorch(self, amount):
         self.torchLight = map(lambda x: x+amount, self.torchLight)
         self.torchLight = map(lambda x: min(255, x), self.torchLight)

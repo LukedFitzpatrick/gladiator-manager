@@ -263,7 +263,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
             deltaX = playerFaceX - playerX
             deltaY = playerFaceY - playerY
 
-            if(level.torchOn):
+            if(level.torchOn and level.needTorchLighting()):
                 
                 torchX = playerX
                 torchY = playerY
@@ -274,7 +274,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
                        lightingDone = True
                     screenX = (torchX-cameraX)*TILE_WIDTH + cameraSlideXPixels
                     screenY = (torchY-cameraY)*TILE_HEIGHT + cameraSlideYPixels
-                    pygame.draw.rect(filter, map(lambda x:255-x, level.torchLight),
+                    pygame.draw.rect(filter, map(lambda x:255-x, level.getTorchLight()),
                                      pygame.Rect(screenX, screenY,
                                                  TILE_WIDTH, TILE_HEIGHT), 0)            
                     torchX += deltaX
@@ -321,7 +321,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
         frameCounter+=1
 
         # trigger any actions
-        level.checkActionTriggers(interactedWithThisFrame)
+        level.checkActionTriggers(interactedWithThisFrame, frameCounter)
 
         # check if the level has any messages for us
         for s in level.getMessages():

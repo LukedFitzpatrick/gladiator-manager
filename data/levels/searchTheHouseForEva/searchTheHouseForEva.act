@@ -1,5 +1,20 @@
 startState initial
 startLightState dark
-startLight 50 50 50
+startLight 0 0 200
 startTorchLight 255 255 255
 startTorch
+
+begin eyesAdjust
+      whenInState initial
+
+      changeStateTo searchForEva
+      message Your eyes start to adjust...
+      objective Find Eva
+end eyesAdjust
+
+begin callOut
+      whenInState searchForEva
+      everyNFrames 500
+
+      message "Eva!"
+end callOut
