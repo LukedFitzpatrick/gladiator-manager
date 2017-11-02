@@ -38,6 +38,7 @@ pygame.init()
 # load fonts
 messageFont = pygame.font.Font("data/font/pokgen1.ttf", 16)
 nameFont = pygame.font.Font("data/font/pokgen1.ttf", 12)
+damageFont = pygame.font.Font("data/font/pokgen1.ttf", 8)
 
 # load tiles
 tileIdToTile = loadTiles("data/tilelist.txt")
@@ -61,7 +62,7 @@ while True:
               "data/levels/"+ nextLevel + "/" + nextLevel + ".act",
               tileIdToTile)
     
-    nextLevel = playOverworld(screen, clock, l, messageFont, nameFont)
+    nextLevel = playOverworld(screen, clock, l, messageFont, nameFont, damageFont)
 
 
 

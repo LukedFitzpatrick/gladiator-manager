@@ -98,11 +98,23 @@ def drawTorchBar(screen, torchPercent, font):
                      (TORCH_BAR_X, TORCH_BAR_Y,
                       TORCH_BAR_WIDTH*(torchPercent/100.0),TORCH_BAR_HEIGHT), 0)
                     
-    
+
+
+def drawDamageMessages(screen, damageMessages, font):
+    remainingMessages = []
+    for d in damageMessages:
+        (screenX, screenY, damage, framesLeft) = d
+        label = font.render("-"+str(damage), 1, DAMAGE_MESSAGE_COLOUR)
+        screen.blit(label, (screenX, screenY))
+
+        if framesLeft > 1:
+            remainingMessages.append((screenX, screenY, damage, framesLeft-1))
+
+    return remainingMessages
     
 
 # eventually pass level/scene objects into here
-def playOverworld(screen, clock, level, messageFont, smallFont):
+def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
     print "Playing overworld"
 
     # camera moves in tile coordinates
@@ -121,8 +133,11 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
     cameraSlideYPixels = 0
 
     light = pygame.image.load("data/circle.png")
-    
+
     knifeFrames = 0
+
+    damageMessages = []
+    
     while not done:
         clock.tick(FRAME_RATE)
         
@@ -252,12 +267,15 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
 
                 if(HEALTHBARS):
                     pygame.draw.rect(screen,HEALTHBAR_OUTLINE_COLOUR,
-                                     (screenX,screenY,HEALTHBAR_WIDTH,HEALTHBAR_HEIGHT), 1)
+                                     (screenX+(TILE_WIDTH-HEALTHBAR_WIDTH)/2.0,
+                                      screenY-HEALTHBAR_FLOAT_AMOUNT,
+                                      HEALTHBAR_WIDTH,HEALTHBAR_HEIGHT), 0)
 
                     pygame.draw.rect(screen,HEALTHBAR_FILL_COLOUR,
-                                     (screenX,screenY,
-                                      HEALTHBAR_WIDTH*a.fighter.getHealthPercent/100.0,
-                                      ,HEALTHBAR_HEIGHT), 0)
+                                     (screenX+(TILE_WIDTH-HEALTHBAR_WIDTH)/2.0,
+                                      screenY-HEALTHBAR_FLOAT_AMOUNT,
+                                      HEALTHBAR_WIDTH*(a.fighter.getHealthPercent()/100.0),
+                                      HEALTHBAR_HEIGHT), 0)
 
                     
         # combat! Knifing
@@ -287,7 +305,6 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
             deltaY = playerFaceY - playerY
 
             if(level.torchOn and level.needTorchLighting()):
-                
                 torchX = playerX
                 torchY = playerY
                 lightingDone = False
@@ -314,6 +331,9 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
         if(level.hasObjective):
             displayObjective(screen, smallFont, level.objective)
 
+        damageMessages = drawDamageMessages(screen, damageMessages, damageFont)
+
+            
         (playerFaceX, playerFaceY) = level.getPlayer().faceTile()
 
         interactedWithThisFrame = ""
@@ -328,7 +348,19 @@ def playOverworld(screen, clock, level, messageFont, smallFont):
                 interactedWithThisFrame = a.getName()
                 keysdown = []
             if (level.getPlayer().currentlyKnifing):
-                a.fighter.dealDamage(level.getPlayer().fighter.baseKnifeDamage)
+
+                # todo make more elaborate
+                damageDealt = level.getPlayer().fighter.baseKnifeDamage
+                
+                a.fighter.dealDamage(damageDealt)
+                
+                screenX = (a.x-cameraX)*TILE_WIDTH + cameraSlideXPixels + TILE_WIDTH/2-4
+                if level.getPlayer().facing == "down":
+                    screenY = (a.y-cameraY)*TILE_HEIGHT+cameraSlideYPixels+DAMAGE_MESSAGE_FLOAT_DOWN_AMOUNT
+                else:
+                    screenY = (a.y-cameraY)*TILE_HEIGHT+cameraSlideYPixels-DAMAGE_MESSAGE_FLOAT_AMOUNT
+
+                damageMessages.append((screenX, screenY, damageDealt, DAMAGE_MESSAGE_FRAMES))
                 level.getPlayer().currentlyKnifing = False
 
         # check if player is facing any objects
