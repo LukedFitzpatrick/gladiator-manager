@@ -99,17 +99,6 @@ class Overworld:
 
         self.screen.blit(label, (GAME_WIDTH-label.get_width(), 0))
 
-    def drawTorchBar(self, screen, torchPercent, font):
-        # the outline
-        pygame.draw.rect(self.screen,(255,255,255),
-                         (TORCH_BAR_X,TORCH_BAR_Y,TORCH_BAR_WIDTH,TORCH_BAR_HEIGHT), 2)
-
-        # the fill
-        pygame.draw.rect(self.screen, TORCH_BAR_COLOUR,
-                         (TORCH_BAR_X, TORCH_BAR_Y,
-                          TORCH_BAR_WIDTH*(torchPercent/100.0),TORCH_BAR_HEIGHT), 0)
-
-
 
     def drawDamageMessages(self, screen, damageMessages, font):
         remainingMessages = []
@@ -147,6 +136,15 @@ class Overworld:
         self.hazeTimer = duration
 
 
+    def updateScreenShake(self):
+        if(self.screenShakeTimer > 0):
+            self.screenShakeTimer -= 1
+            self.screenShakeX = random.choice(range(-self.screenShakeAmount, self.screenShakeAmount))
+            self.screenShakeY = random.choice(range(-self.screenShakeAmount, self.screenShakeAmount))
+        else:
+            (self.screenShakeX, self.screenShakeY) = (0, 0)
+                
+        
 
     def playOverworld(self, screen, clock, level, messageFont, smallFont, damageFont):
         self.cameraX = level.getPlayer().x - NUM_TILES_X/2
@@ -159,9 +157,9 @@ class Overworld:
         while not done:
             clock.tick(FRAME_RATE)
 
+            # handle events
             for event in pygame.event.get(): 
                 if event.type == pygame.QUIT:
-                    # todo clean up the exit system
                     pygame.quit()
                     return
                 elif event.type == pygame.KEYDOWN:
@@ -171,20 +169,14 @@ class Overworld:
                         self.keysdown.remove(event.key)                
 
 
-            if(self.screenShakeTimer > 0):
-                self.screenShakeTimer -= 1
-                self.screenShakeX = random.choice([self.screenShakeAmount, -self.screenShakeAmount])
-                self.screenShakeY = random.choice([self.screenShakeAmount, -self.screenShakeAmount])
-            else:
-                (self.screenShakeX, self.screenShakeY) = (0, 0)
 
+            self.updateScreenShake()
 
-
-
-            # handle torch charging
-            if(level.torchOn and TORCH_BUTTON in self.keysdown):
+            # turn the torch on and off
+            if(level.getPlayer().hasTorch and TORCH_BUTTON in self.keysdown):
                 self.keysdown.remove(TORCH_BUTTON)
-                level.chargeTorch(TORCH_INCREMENT_PER_MASH)
+                level.getPlayer().flipTorch()
+
 
             # handle key presses
             if (self.playerMoveLock == 0):
@@ -335,7 +327,7 @@ class Overworld:
                 deltaX = playerFaceX - playerX
                 deltaY = playerFaceY - playerY
 
-                if(level.torchOn and level.needTorchLighting()):
+                if(level.getPlayer().torchOn):
                     torchX = playerX
                     torchY = playerY
                     lightingDone = False
@@ -344,19 +336,14 @@ class Overworld:
                         if(not level.canWalk(torchX, torchY, level.getPlayer())):
                            lightingDone = True
                         (screenX, screenY) = self.tileCoordsToScreenCoords(torchX, torchY)
-                        pygame.draw.rect(filter, map(lambda x:255-x, level.getTorchLight()),
+                        pygame.draw.rect(filter, map(lambda x:255-x, level.getPlayer().torchLight),
                                          pygame.Rect(screenX, screenY,
                                                      TILE_WIDTH, TILE_HEIGHT), 0)            
                         torchX += deltaX
                         torchY += deltaY
 
-                    level.chargeTorch(-TORCH_DECREMENT_PER_FRAME)
 
                 self.screen.blit(filter, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
-
-            if(level.torchOn):
-                self.drawTorchBar(self.screen, level.getTorchPercentage(), smallFont)
-
 
             # haze
             if(self.hazeTimer > 0):

@@ -36,7 +36,7 @@ begin foundTorch
       whenInteractWith Drawersb
 
       message You got the torch!
-      message (mash spacebar to wind the torch and charge its battery)
+      message (press spacebar to turn the torch on and off)
       getTorch
       changeStateTo find_eva
       objective Find Eva

@@ -20,9 +20,6 @@ class Level:
         self.lightingOn = True
         self.ambientLight = (255, 255, 255)
 
-        self.torchOn = False
-        #self.torchLight = (226, 244, 66)
-
         self.messages = []
         self.readyForNextLevel = False
 
@@ -136,10 +133,10 @@ class Level:
                                      int(arguments[2]))
 
             elif(command == ACTION_LANG_START_TORCH):
-                self.setTorch(True)                                   
+                self.getPlayer().setHasTorch(True)                                   
 
             elif(command == ACTION_LANG_START_TORCH_LIGHT):
-                self.torchLight = (int(arguments[0]),
+                self.getPlayer().setTorchLight = (int(arguments[0]),
                                      int(arguments[1]),
                                      int(arguments[2]))
 
@@ -260,30 +257,7 @@ class Level:
 
     def getMessages(self):
         return self.messages
-
-    def setTorch(self, val):
-        self.torchOn = True
-
-    def getTorchPercentage(self):
-        (r, g, b) = self.torchLight
-        return (r/255.0)*100.0
-
-    def needTorchLighting(self):
-        (r, g, b) = self.torchLight
-        (ar, ag, ab) = self.ambientLight
-        return(ar<r or ag<g or ab<b)
-
-    def getTorchLight(self):
-        (r, g, b) = self.torchLight
-        (ar, ag, ab) = self.ambientLight
-
-        return(max(r, ar), max(g, ag), max(b, ab))
-    
-    def chargeTorch(self, amount):
-        self.torchLight = map(lambda x: x+amount, self.torchLight)
-        self.torchLight = map(lambda x: min(255, x), self.torchLight)
-        self.torchLight = map(lambda x: max(0, x), self.torchLight)
-        
+            
     def changeState(self, state):
         print "Changed state from " + self.state + " to " + state
         self.state = state

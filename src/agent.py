@@ -33,11 +33,29 @@ class Agent:
         self.width = 32
         self.height = 32
 
+
+        self.torchOn = False
+        self.hasTorch = False
+        self.torchLight = (255, 255, 255)
+        
         # etc.
 
         self.knifeFrames = 0
 
-    
+
+    def setHasTorch(self, value):
+        self.hasTorch = value
+
+    def setTorchOn(self, value):
+        self.torchOn = value
+
+    def setTorchLight(self, value):
+        self.torchLight = value
+
+    def flipTorch(self):
+        self.torchOn = not self.torchOn
+
+        
     def runAI(self, level):
         return self.ai.runAI(level)
     
