@@ -135,6 +135,7 @@ class Action:
             level.lightState = self.changeLightState
 
         if(self.getsTorch):
+            print "Giving the player a torch"
             level.getPlayer().setHasTorch(True)
 
             

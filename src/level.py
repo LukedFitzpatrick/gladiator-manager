@@ -176,7 +176,7 @@ class Level:
 
             # create a message when the action happens
             elif(command == ACTION_LANG_MESSAGE):
-                currAction.addMessage(' '.join(arguments))
+                currAction.addMessage(' '.join(arguments).replace("*comma*", ","))
 
             # change the tile of an object
             elif(command == ACTION_LANG_CHANGE_OBJECT_TILE):

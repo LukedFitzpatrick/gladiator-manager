@@ -39,15 +39,19 @@ begin pickupPhone
 
       changeStateTo after_phone
       objective none
-      message Hi Dad! It's me, Eva!
-      message I'm still here with my friends - I won't be home until late!
-      message Now you get some sleep! Don't stay up all night worrying about me again!
+      message It's me*comma* your next door neighbour PROF. JIM!
+      message I've got a quick favor to ask you!
+      message I need you to take care of something of mine*comma* I'm going away for a while and I need to know its safe
+      message ...
+      message No, nothing dangerous, not like last time. At least it shouldn't be dangerous if I get there soon enough...
+      message You'll do it? Ok*comma* great*comma* fantastic*comma* that's huge of you!
+      message I'll be around some time later tonight.
       message Ok ... .... Ok - Bye Now!
 
       changeObjectTile Deskl roomdeskl
       changeObjectDialogue Deskl Phone's quiet now.
-      changeObjectDialogue Bedt You can't sleep...
-      changeObjectDialogue Bedb You can't sleep...
+      changeObjectDialogue Bedt Sigh... You should probably stay up and wait for PROF. JIM.
+      changeObjectDialogue Bedb Sigh... You should probably stay up and wait for PROF. JIM.
 end pickupPhone
 
 
@@ -60,8 +64,8 @@ begin readComputer
       message Reddit.com: "Controversial AI Researcher Announces HUGE BREAKTHROUGH"
       message ... more clickbait ...
       message -- yawn --
-      changeObjectDialogue Bedt Guess Eva's right: no use staying up all night!
-      changeObjectDialogue Bedb Guess Eva's right: no use staying up all night!
+      changeObjectDialogue Bedt There's no use staying up all night waiting for that flake PROF. JIM...
+      changeObjectDialogue Bedb There's no use staying up all night waiting for that flake PROF. JIM...
 end readComputer
 
 # going to sleep

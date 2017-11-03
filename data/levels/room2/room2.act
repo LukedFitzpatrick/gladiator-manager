@@ -8,11 +8,12 @@ begin start
       whenInState initial
 
       objective Switch on the light
-      message ...
+      message KNOCK KNOCK KNOCK
       message ... What time is it?
+      message KNOCK KNOCK KNOCK
       message ...
-      message I wonder if Eva made it home yet?
-      message I can't see a thing, it's too dark in here
+      message That must be PROF. JIM!
+      message I can't see a thing, where's that light switch?
       changeStateTo find_switch
 end start
 
@@ -38,14 +39,14 @@ begin foundTorch
       message You got the torch!
       message (press spacebar to turn the torch on and off)
       getTorch
-      changeStateTo find_eva
-      objective Find Eva
-      changeObjectDialogue Door "EVA! Are you here!"
+      changeStateTo find_jim
+      objective Let PROF. JIM in
+      changeObjectDialogue Door "Coming JIM!"
       changeObjectDialogue Drawersb Always handy to keep a torch around the house.
 end foundTorch
 
 begin findEva
-      whenInState find_eva
+      whenInState find_jim
       whenInteractWith Door
-      changeLevel searchTheHouseForEva
+      changeLevel letJimIn
 end findEva

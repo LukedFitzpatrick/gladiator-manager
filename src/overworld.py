@@ -166,7 +166,6 @@ class Overworld:
             self.level.getPlayer().flipTorch()
 
 
-
     def handlePlayerMovement(self):
         # handle key presses
         if (self.playerMoveLock == 0):
@@ -313,14 +312,16 @@ class Overworld:
 
 
             # torch lighting
-            (playerFaceX, playerFaceY) = self.level.getPlayer().faceTile()
-            playerX = self.level.getPlayer().x
-            playerY = self.level.getPlayer().y
-
-            deltaX = playerFaceX - playerX
-            deltaY = playerFaceY - playerY
-
             if(self.level.getPlayer().torchOn):
+                (playerFaceX, playerFaceY) = self.level.getPlayer().faceTile()
+                playerX = self.level.getPlayer().x
+                playerY = self.level.getPlayer().y
+
+                
+                deltaX = playerFaceX - playerX
+                deltaY = playerFaceY - playerY
+                
+
                 torchX = playerX
                 torchY = playerY
                 lightingDone = False
@@ -328,12 +329,12 @@ class Overworld:
                 while not lightingDone:
                     if(not self.level.canWalk(torchX, torchY, self.level.getPlayer())):
                         lightingDone = True
-                        (screenX, screenY) = self.tileCoordsToScreenCoords(torchX, torchY)
-                        pygame.draw.rect(filter, map(lambda x:255-x, self.level.getPlayer().torchLight),
-                                         pygame.Rect(screenX, screenY,
-                                                     TILE_WIDTH, TILE_HEIGHT), 0)            
-                        torchX += deltaX
-                        torchY += deltaY
+                    (screenX, screenY) = self.tileCoordsToScreenCoords(torchX, torchY)
+                    pygame.draw.rect(filter, map(lambda x:255-x, self.level.getPlayer().torchLight),
+                                     pygame.Rect(screenX, screenY,
+                                                 TILE_WIDTH, TILE_HEIGHT), 0)            
+                    torchX += deltaX
+                    torchY += deltaY
 
 
             self.screen.blit(filter, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
