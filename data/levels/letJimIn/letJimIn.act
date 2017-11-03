@@ -7,14 +7,23 @@ startTorch
 begin eyesAdjust
       whenInState initial
 
-      changeStateTo searchForEva
+      changeStateTo letJimIn
       message Your eyes start to adjust...
-      objective Find Eva
+      objective Let PROF. JIM. in
 end eyesAdjust
 
 begin callOut
-      whenInState searchForEva
-      everyNFrames 500
+      whenInState letJimIn
+      everyNFrames 200
 
-      message "Eva!"
+      message "KNOCK KNOCK KNOCK"
+      message "WAKE UP! I'M AT THE FRONT DOOR"
 end callOut
+
+begin openDoor
+      whenInState letJimIn
+      whenInteractWith FrontDoor
+      whenInteractWith FrontDoor2
+
+      changeLevel "jimComesIn"
+end openDoor

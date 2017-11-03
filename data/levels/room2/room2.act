@@ -45,8 +45,17 @@ begin foundTorch
       changeObjectDialogue Drawersb Always handy to keep a torch around the house.
 end foundTorch
 
-begin findEva
+
+begin callOut
+      whenInState find_jim 
+      everyNFrames 200
+
+      message "KNOCK KNOCK KNOCK"
+      message "WAKE UP! I'M AT THE FRONT DOOR"
+end callOut
+
+begin findJim
       whenInState find_jim
       whenInteractWith Door
       changeLevel letJimIn
-end findEva
+end findJim
