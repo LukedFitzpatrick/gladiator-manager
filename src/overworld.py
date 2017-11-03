@@ -118,12 +118,7 @@ def drawDamageMessages(screen, damageMessages, font):
     return remainingMessages
 
 
-screenShakeX = 0
-screenShakeY = 0
-cameraSlideXPixels = 0
-cameraSlideYPixels = 0
-cameraX = 0
-cameraY = 0
+
 
 def tileCoordsToScreenCoords(x, y):
     screenX = (x-cameraX)*TILE_WIDTH + cameraSlideXPixels + screenShakeX
@@ -138,10 +133,17 @@ def shakeScreen(amount, duration):
     screenShakeTimer = max(duration, screenShakeTimer)
 
 
+def hazeScreen(colour, duration):
+    global hazeColour
+    global hazeTimer
+    hazeColour = colour
+    hazeTimer = duration
+
+    
+
+    
 # eventually pass level/scene objects into here
 def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
-    print "Playing overworld"
-
     global screenShakeX
     global screenShakeY
     global cameraSlideXPixels
@@ -172,6 +174,11 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
     global screenShakeAmount
     global screenShakeTimer
     (screenShakeAmount, screenShakeTimer) = (0, 0)
+
+
+    global hazeColour
+    global hazeTimer
+    (hazeColour, hazeTimer) = ((0, 0, 0), 0)
     
     light = pygame.image.load("data/circle.png")
 
@@ -194,12 +201,14 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
 
 
         if(screenShakeTimer > 0):
-            screenShakeTimer -=1
+            screenShakeTimer -= 1
             screenShakeX = random.choice([screenShakeAmount, -screenShakeAmount])
             screenShakeY = random.choice([screenShakeAmount, -screenShakeAmount])
         else:
-            screenShakeX = 0
-            screenShakeY = 0
+            (screenShakeX, screenShakeY) = (0, 0)
+
+
+
             
         # handle torch charging
         if(level.torchOn and TORCH_BUTTON in keysdown):
@@ -377,6 +386,18 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
         if(level.torchOn):
             drawTorchBar(screen, level.getTorchPercentage(), smallFont)
 
+
+        # haze
+        if(hazeTimer > 0):
+            hazeTimer -= 1
+            haze = pygame.surface.Surface((GAME_WIDTH, GAME_HEIGHT))
+            haze.fill(map(lambda x:255-x, hazeColour))
+            screen.blit(haze, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
+
+        else:
+            hazeColour = (255, 0, 0)
+
+            
         # drawing objective has to go after lighting
         if(level.hasObjective):
             displayObjective(screen, smallFont, level.objective)
@@ -418,7 +439,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
                                                DAMAGE_MESSAGE_FRAMES,
                                                SHANK_WIGGLE))
                         shakeScreen(SHANK_WIGGLE, DAMAGE_MESSAGE_FRAMES)
-
+                        
                     # back stab
                     elif((deltaX == 0 and deltaY == 2) or
                          (deltaX == 2 and deltaY == 0)):
@@ -441,10 +462,10 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
 
                         
                     e.fighter.dealDamage(damageDealt)
+                    if(e == level.getPlayer()):
+                        hazeScreen((200,0,0), 15)
 
 
-
-                    #damageMessages.append((screenX, screenY, damageDealt, DAMAGE_MESSAGE_FRAMES))
                     a.currentlyKnifing = False
 
 
