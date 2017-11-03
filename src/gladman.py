@@ -61,8 +61,9 @@ while True:
               "data/levels/"+ nextLevel + "/" + nextLevel + ".obj",
               "data/levels/"+ nextLevel + "/" + nextLevel + ".act",
               tileIdToTile)
-    
-    nextLevel = playOverworld(screen, clock, l, messageFont, nameFont, damageFont)
+
+    o = Overworld()
+    nextLevel = o.playOverworld(screen, clock, l, messageFont, nameFont, damageFont)
 
 
 
