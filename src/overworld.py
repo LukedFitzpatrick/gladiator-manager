@@ -116,12 +116,40 @@ def drawDamageMessages(screen, damageMessages, font):
                  wiggle))
 
     return remainingMessages
-    
+
+
+screenShakeX = 0
+screenShakeY = 0
+cameraSlideXPixels = 0
+cameraSlideYPixels = 0
+cameraX = 0
+cameraY = 0
+
+def tileCoordsToScreenCoords(x, y):
+    screenX = (x-cameraX)*TILE_WIDTH + cameraSlideXPixels + screenShakeX
+    screenY = (y-cameraY)*TILE_HEIGHT + cameraSlideYPixels + screenShakeY    
+    return (screenX, screenY)
+
+
+def shakeScreen(amount, duration):
+    global screenShakeAmount
+    global screenShakeTimer
+    screenShakeAmount = max(amount, screenShakeAmount)
+    screenShakeTimer = max(duration, screenShakeTimer)
+
 
 # eventually pass level/scene objects into here
 def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
     print "Playing overworld"
 
+    global screenShakeX
+    global screenShakeY
+    global cameraSlideXPixels
+    global cameraSlideYPixels
+    global cameraX
+    global cameraY
+
+    
     # camera moves in tile coordinates
     cameraX = level.getPlayer().x - NUM_TILES_X/2
     cameraY = level.getPlayer().y - NUM_TILES_Y/2
@@ -137,11 +165,19 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
     cameraSlideXPixels = 0
     cameraSlideYPixels = 0
 
+
+    screenShakeX = 0
+    screenShakeY = 0
+
+    global screenShakeAmount
+    global screenShakeTimer
+    (screenShakeAmount, screenShakeTimer) = (0, 0)
+    
     light = pygame.image.load("data/circle.png")
 
 
     damageMessages = []
-    
+
     while not done:
         clock.tick(FRAME_RATE)
         
@@ -157,6 +193,14 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
                     keysdown.remove(event.key)                
 
 
+        if(screenShakeTimer > 0):
+            screenShakeTimer -=1
+            screenShakeX = random.choice([screenShakeAmount, -screenShakeAmount])
+            screenShakeY = random.choice([screenShakeAmount, -screenShakeAmount])
+        else:
+            screenShakeX = 0
+            screenShakeY = 0
+            
         # handle torch charging
         if(level.torchOn and TORCH_BUTTON in keysdown):
             keysdown.remove(TORCH_BUTTON)
@@ -233,8 +277,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
         # draw the level grid
         for x in range(cameraX-1, cameraX+NUM_TILES_X+1):
             for y in range(cameraY-1, cameraY+NUM_TILES_Y+1):
-                screenX = (x-cameraX)*TILE_WIDTH + cameraSlideXPixels
-                screenY = (y-cameraY)*TILE_HEIGHT + cameraSlideYPixels
+                (screenX, screenY) = tileCoordsToScreenCoords(x, y)
 
                 # draw tiles
                 if(level.hasTile(x, y)):
@@ -259,9 +302,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
             projectedY = a.y-cameraY
 
             if(isOnScreen(projectedX, projectedY)):
-                screenX = projectedX*TILE_WIDTH + cameraSlideXPixels
-                screenY = projectedY*TILE_HEIGHT + cameraSlideYPixels
-                
+                (screenX, screenY) = tileCoordsToScreenCoords(a.x, a.y)                
                 screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
 
                 if(NAMES_ABOVE_AGENTS):
@@ -275,9 +316,8 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
             projectedY = a.y-cameraY
 
             if(isOnScreen(projectedX, projectedY)):
-                screenX = projectedX*TILE_WIDTH + cameraSlideXPixels
-                screenY = projectedY*TILE_HEIGHT + cameraSlideYPixels
-                
+                (screenX, screenY) = tileCoordsToScreenCoords(a.x, a.y)
+
                 screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
 
                 if(NAMES_ABOVE_AGENTS):
@@ -323,8 +363,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
                 while not lightingDone:
                     if(not level.canWalk(torchX, torchY, level.getPlayer())):
                        lightingDone = True
-                    screenX = (torchX-cameraX)*TILE_WIDTH + cameraSlideXPixels
-                    screenY = (torchY-cameraY)*TILE_HEIGHT + cameraSlideYPixels
+                    (screenX, screenY) = tileCoordsToScreenCoords(torchX, torchY)
                     pygame.draw.rect(filter, map(lambda x:255-x, level.getTorchLight()),
                                      pygame.Rect(screenX, screenY,
                                                  TILE_WIDTH, TILE_HEIGHT), 0)            
@@ -356,14 +395,15 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
                 e = level.agentAt(faceX, faceY)
 
                 if(e != None):
-                    screenX = (a.x-cameraX)*TILE_WIDTH + cameraSlideXPixels + TILE_WIDTH/2-4
-
                     if a.facing == "down":
-                        screenY = (a.y-cameraY)*TILE_HEIGHT+cameraSlideYPixels+DAMAGE_MESSAGE_FLOAT_DOWN_AMOUNT
+                        (screenX, screenY) = tileCoordsToScreenCoords(a.x, a.y)
+                        screenX += TILE_WIDTH/2 - 4
+                        screenY += DAMAGE_MESSAGE_FLOAT_DOWN_AMOUNT
+
                     else:
-                        screenY = (a.y-cameraY)*TILE_HEIGHT+cameraSlideYPixels-DAMAGE_MESSAGE_FLOAT_AMOUNT
-
-
+                        (screenX, screenY) = tileCoordsToScreenCoords(a.x, a.y)
+                        screenX += TILE_WIDTH/2 - 4
+                        screenY -= DAMAGE_MESSAGE_FLOAT_DOWN_AMOUNT
                     
                     # check flanking etc.
                     (enemyFaceX, enemyFaceY) = e.faceTile()
@@ -377,7 +417,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
                                                "SHANK -" + str(damageDealt),
                                                DAMAGE_MESSAGE_FRAMES,
                                                SHANK_WIGGLE))
-
+                        shakeScreen(SHANK_WIGGLE, DAMAGE_MESSAGE_FRAMES)
 
                     # back stab
                     elif((deltaX == 0 and deltaY == 2) or
@@ -387,6 +427,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
                                                "BACKSTAB -" + str(damageDealt),
                                                DAMAGE_MESSAGE_FRAMES,
                                                BACKSTAB_WIGGLE))
+                        shakeScreen(BACKSTAB_WIGGLE, DAMAGE_MESSAGE_FRAMES)
 
 
                     # flanking
@@ -396,6 +437,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
                                                "FLANK -" + str(damageDealt),
                                                DAMAGE_MESSAGE_FRAMES,
                                                FLANK_WIGGLE))
+                        shakeScreen(FLANK_WIGGLE, DAMAGE_MESSAGE_FRAMES)
 
                         
                     e.fighter.dealDamage(damageDealt)
