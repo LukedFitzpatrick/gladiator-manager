@@ -144,12 +144,19 @@ class Overworld:
         else:
             (self.screenShakeX, self.screenShakeY) = (0, 0)
                 
-        
+
+    def handleTorch(self):
+        if(self.level.getPlayer().hasTorch and TORCH_BUTTON in self.keysdown):
+            self.keysdown.remove(TORCH_BUTTON)
+            self.level.getPlayer().flipTorch()
+
+            
 
     def playOverworld(self, screen, clock, level, messageFont, smallFont, damageFont):
         self.cameraX = level.getPlayer().x - NUM_TILES_X/2
         self.cameraY = level.getPlayer().y - NUM_TILES_Y/2
 
+        self.level = level
         self.screen = screen
         
         done = False
@@ -169,56 +176,52 @@ class Overworld:
                         self.keysdown.remove(event.key)                
 
 
-
             self.updateScreenShake()
 
             # turn the torch on and off
-            if(level.getPlayer().hasTorch and TORCH_BUTTON in self.keysdown):
-                self.keysdown.remove(TORCH_BUTTON)
-                level.getPlayer().flipTorch()
 
 
             # handle key presses
             if (self.playerMoveLock == 0):
                 if(LEFT_BUTTON in self.keysdown):
-                    level.getPlayer().translate(-1, 0, level)
+                    self.level.getPlayer().translate(-1, 0, self.level)
                     self.playerMoveLock = MOVE_LOCK_FRAMES
 
                 elif(RIGHT_BUTTON in self.keysdown):
-                    level.getPlayer().translate(1, 0, level)
+                    self.level.getPlayer().translate(1, 0, self.level)
                     self.playerMoveLock = MOVE_LOCK_FRAMES
 
                 elif(UP_BUTTON in self.keysdown):
-                    level.getPlayer().translate(0, -1, level)
+                    self.level.getPlayer().translate(0, -1, self.level)
                     self.playerMoveLock = MOVE_LOCK_FRAMES
 
                 elif(DOWN_BUTTON in self.keysdown):
-                    level.getPlayer().translate(0, 1, level)
+                    self.level.getPlayer().translate(0, 1, self.level)
                     self.playerMoveLock = MOVE_LOCK_FRAMES
             else:
                 self.playerMoveLock = max(self.playerMoveLock-1, 0)
 
             # run the agent AI/ updating frames
-            for a in level.agents:
+            for a in self.level.agents:
                 a.updateFrames()
-                if(a != level.getPlayer()):
-                    move = a.runAI(level)
+                if(a != self.level.getPlayer()):
+                    move = a.runAI(self.level)
                     if(move == AI_MOVE_DOWN):
-                        a.translate(0, 1, level)
+                        a.translate(0, 1, self.level)
                     elif(move == AI_MOVE_UP):
-                        a.translate(0, -1, level)
+                        a.translate(0, -1, self.level)
                     elif(move == AI_MOVE_LEFT):
-                        a.translate(-1, 0, level)
+                        a.translate(-1, 0, self.level)
                     elif(move == AI_MOVE_RIGHT):
-                        a.translate(1, 0, level)
+                        a.translate(1, 0, self.level)
                     elif(move == AI_KNIFE):
                         a.startAttack()
 
             # make the camera follow the player
             oldCameraX = self.cameraX
-            self.cameraX = level.getPlayer().x - NUM_TILES_X/2
+            self.cameraX = self.level.getPlayer().x - NUM_TILES_X/2
             oldCameraY = self.cameraY
-            self.cameraY = level.getPlayer().y - NUM_TILES_Y/2
+            self.cameraY = self.level.getPlayer().y - NUM_TILES_Y/2
 
 
             if(self.cameraX > oldCameraX):
@@ -252,8 +255,8 @@ class Overworld:
                     (screenX, screenY) = self.tileCoordsToScreenCoords(x, y)
 
                     # draw tiles
-                    if(level.hasTile(x, y)):
-                        t = level.getTile(x, y)
+                    if(self.level.hasTile(x, y)):
+                        t = self.level.getTile(x, y)
                         self.screen.blit(t.getImage(), (screenX,screenY,TILE_WIDTH,TILE_HEIGHT))
 
                         # display hitboxes
@@ -261,7 +264,7 @@ class Overworld:
                             pygame.draw.rect(self.screen,(255,0,0),
                                          (screenX,screenY,TILE_WIDTH,TILE_HEIGHT), 1)
 
-                    # out of level hitboxes
+                    # out of self.level hitboxes
                     else:
                         if(HITBOXES):
                             pygame.draw.rect(self.screen,(0,0,255),
@@ -269,7 +272,7 @@ class Overworld:
 
 
             # now draw the objects
-            for a in level.getObjects():
+            for a in self.level.getObjects():
                 projectedX = a.x-self.cameraX
                 projectedY = a.y-self.cameraY
 
@@ -283,7 +286,7 @@ class Overworld:
 
 
             # now draw the agents
-            for a in level.getAgents():
+            for a in self.level.getAgents():
                 projectedX = a.x-self.cameraX
                 projectedY = a.y-self.cameraY
 
@@ -310,33 +313,33 @@ class Overworld:
 
 
             # combat! Knifing
-            if(level.getPlayer().hasKnife):
+            if(self.level.getPlayer().hasKnife):
                 if(KNIFE_BUTTON in self.keysdown):
                     self.keysdown.remove(KNIFE_BUTTON)
-                    level.getPlayer().startAttack()
+                    self.level.getPlayer().startAttack()
 
             # do lighting/torch lighting
-            if(level.lightingOn):
+            if(self.level.lightingOn):
                 filter = pygame.surface.Surface((GAME_WIDTH, GAME_HEIGHT))
-                filter.fill(map(lambda x:255-x, level.ambientLight))
+                filter.fill(map(lambda x:255-x, self.level.ambientLight))
 
-                (playerFaceX, playerFaceY) = level.getPlayer().faceTile()
-                playerX = level.getPlayer().x
-                playerY = level.getPlayer().y
+                (playerFaceX, playerFaceY) = self.level.getPlayer().faceTile()
+                playerX = self.level.getPlayer().x
+                playerY = self.level.getPlayer().y
 
                 deltaX = playerFaceX - playerX
                 deltaY = playerFaceY - playerY
 
-                if(level.getPlayer().torchOn):
+                if(self.level.getPlayer().torchOn):
                     torchX = playerX
                     torchY = playerY
                     lightingDone = False
 
                     while not lightingDone:
-                        if(not level.canWalk(torchX, torchY, level.getPlayer())):
+                        if(not self.level.canWalk(torchX, torchY, self.level.getPlayer())):
                            lightingDone = True
                         (screenX, screenY) = self.tileCoordsToScreenCoords(torchX, torchY)
-                        pygame.draw.rect(filter, map(lambda x:255-x, level.getPlayer().torchLight),
+                        pygame.draw.rect(filter, map(lambda x:255-x, self.level.getPlayer().torchLight),
                                          pygame.Rect(screenX, screenY,
                                                      TILE_WIDTH, TILE_HEIGHT), 0)            
                         torchX += deltaX
@@ -357,8 +360,8 @@ class Overworld:
 
 
             # drawing objective has to go after lighting
-            if(level.hasObjective):
-                self.displayObjective(self.screen, smallFont, level.objective)
+            if(self.level.hasObjective):
+                self.displayObjective(self.screen, smallFont, self.level.objective)
 
 
 
@@ -368,10 +371,10 @@ class Overworld:
 
 
             # check knife damage
-            for a in level.agents:
+            for a in self.level.agents:
                 if (a.currentlyKnifing):
                     (faceX, faceY) = a.faceTile()
-                    e = level.agentAt(faceX, faceY)
+                    e = self.level.agentAt(faceX, faceY)
 
                     if(e != None):
                         if a.facing == "down":
@@ -420,7 +423,7 @@ class Overworld:
 
 
                         e.fighter.dealDamage(damageDealt)
-                        if(e == level.getPlayer()):
+                        if(e == self.level.getPlayer()):
                             self.hazeScreen((200,0,0), 15)
 
 
@@ -431,8 +434,8 @@ class Overworld:
 
 
             # check if the player is facing any agents so we can interact with them
-            (playerFaceX, playerFaceY) = level.getPlayer().faceTile()
-            a = level.agentAt(playerFaceX, playerFaceY)
+            (playerFaceX, playerFaceY) = self.level.getPlayer().faceTile()
+            a = self.level.agentAt(playerFaceX, playerFaceY)
             if(a != None):
                 if (INTERACT_BUTTON in self.keysdown):
                     self.displayPressEnterMessage(self.screen, o, smallFont)
@@ -441,12 +444,12 @@ class Overworld:
                     self.keysdown = []
 
             # check if player is facing any objects
-            o = level.objectAt(playerFaceX, playerFaceY)
+            o = self.level.objectAt(playerFaceX, playerFaceY)
             if(o != None):
                 self.displayPressEnterMessage(self.screen, smallFont, o)
                 if (INTERACT_BUTTON in self.keysdown):
                     m = Message(o.getDialogue(), (0, 0, 0), (255, 255, 255), messageFont)
-                    self.displayMessage(self.screen, m, clock, [""], smallFont, level)
+                    self.displayMessage(self.screen, m, clock, [""], smallFont, self.level)
                     self.keysdown = []
                     interactedWithThisFrame = o.getName()
 
@@ -460,28 +463,28 @@ class Overworld:
             stillAlive = []
             nowDead = []
             # check for deaths
-            for a in level.agents:
+            for a in self.level.agents:
                 if (not a.fighter.alive):
                     nowDead.append(a)
                 else:
                     stillAlive.append(a)
 
-            level.agents = stillAlive
+            self.level.agents = stillAlive
 
             # TODO pass now dead to check action triggers eventually
             # trigger any actions
-            level.checkActionTriggers(interactedWithThisFrame, self.totalFrameCounter)
+            self.level.checkActionTriggers(interactedWithThisFrame, self.totalFrameCounter)
 
             # check if the level has any messages for us
-            for s in level.getMessages():
+            for s in self.level.getMessages():
                 m = Message(s, (255, 0, 0), (255, 255, 255), messageFont)
-                self.displayMessage(self.screen, m, clock, [""], smallFont, level)
+                self.displayMessage(self.screen, m, clock, [""], smallFont, self.level)
                 self.keysdown = []
 
-            level.emptyMessages()
+            self.level.emptyMessages()
 
 
             # see if we can end the level
-            if(level.readyForNextLevel):
-                return level.nextLevel
+            if(self.level.readyForNextLevel):
+                return self.level.nextLevel
 
