@@ -90,14 +90,18 @@ class Level:
 
 
             f = Fighter(name + "Fighter", health, knifeDamage)
-            e = Agent(name, eTiles, eKnifeTiles, f)
+            ai = AI(TEAM_EYE_CORPORATION, GOON_AI_PLAN)
+            e = Agent(name, eTiles, eKnifeTiles, f, ai)
+            ai.setAgent(e)
 
+            
             e.setPosition(int(agentInfo[AGENT_X_INDEX]),
                           int(agentInfo[AGENT_Y_INDEX]))
 
             self.agents.append(e)
 
         self.player = self.agents[0]
+        self.player.ai.team = TEAM_ALLY
 
         # now read in the action file
         f = open(actionFile)

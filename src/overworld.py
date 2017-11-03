@@ -2,7 +2,7 @@ import pygame
 from textrect import *
 from constants import *
 from agent import *
-
+from random import randint
 
 class Message:
     def __init__(self, text, colour, backgroundColour, font):
@@ -108,7 +108,11 @@ def drawDamageMessages(screen, damageMessages, font):
         screen.blit(label, (screenX, screenY))
 
         if framesLeft > 1:
-            remainingMessages.append((screenX, screenY, damage, framesLeft-1))
+            remainingMessages.append(
+                (screenX+randint(-DAMAGE_MESSAGE_WIGGLE,DAMAGE_MESSAGE_WIGGLE),
+                 screenY-1,
+                 damage,
+                 framesLeft-1))
 
     return remainingMessages
     
@@ -134,7 +138,6 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
 
     light = pygame.image.load("data/circle.png")
 
-    knifeFrames = 0
 
     damageMessages = []
     
@@ -178,7 +181,22 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
         else:
             moveLock = max(moveLock-1, 0)
 
-
+        # run the agent AI/ updating frames
+        for a in level.agents:
+            a.updateFrames()
+            if(a != level.getPlayer()):
+                move = a.runAI(level)
+                if(move == AI_MOVE_DOWN):
+                    a.translate(0, 1, level)
+                elif(move == AI_MOVE_UP):
+                    a.translate(0, -1, level)
+                elif(move == AI_MOVE_LEFT):
+                    a.translate(-1, 0, level)
+                elif(move == AI_MOVE_RIGHT):
+                    a.translate(1, 0, level)
+                elif(move == AI_KNIFE):
+                    a.startAttack()
+            
         # make the camera follow the player
         oldCameraX = cameraX
         cameraX = level.getPlayer().x - NUM_TILES_X/2
@@ -282,15 +300,7 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
         if(level.getPlayer().hasKnife):
             if(KNIFE_BUTTON in keysdown):
                 keysdown.remove(KNIFE_BUTTON)
-                if(knifeFrames == 0):
-                    knifeFrames = KNIFE_FRAMES
-                    level.getPlayer().startAttack()
-
-            if(knifeFrames > 0):
-                knifeFrames -= 1
-                if(knifeFrames == 0):
-                    level.getPlayer().endAttack()
-
+                level.getPlayer().startAttack()
 
         # do lighting/torch lighting
         if(level.lightingOn):
@@ -334,12 +344,55 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
         damageMessages = drawDamageMessages(screen, damageMessages, damageFont)
 
             
-        (playerFaceX, playerFaceY) = level.getPlayer().faceTile()
 
         interactedWithThisFrame = ""
 
+
+
+        # check knife damage
+        for a in level.agents:
+            if (a.currentlyKnifing):
+                (faceX, faceY) = a.faceTile()
+                e = level.agentAt(faceX, faceY)
+
+                if(e != None):
+                    # todo make more elaborate
+
+                    # check flanking etc.
+                    (enemyFaceX, enemyFaceY) = e.faceTile()
+                    deltaX = abs(enemyFaceX - a.x)
+                    deltaY = abs(enemyFaceY - a.y)
+                    print str(deltaX) + " " + str(deltaY)
+
+                    
+                    # face to face
+                    if(deltaX == 0 and deltaY == 0):
+                        damageDealt = a.fighter.baseKnifeDamage
+
+                    # back stab
+                    elif((deltaX == 0 and deltaY == 2) or
+                         (deltaX == 2 and deltaY == 0)):
+                        damageDealt = a.fighter.baseKnifeDamage*BACKSTAB_BONUS
+
+                    # flanking
+                    else:
+                        damageDealt = a.fighter.baseKnifeDamage*FLANKING_BONUS
+                        
+                    e.fighter.dealDamage(damageDealt)
+
+                    screenX = (a.x-cameraX)*TILE_WIDTH + cameraSlideXPixels + TILE_WIDTH/2-4
+                    if a.facing == "down":
+                        screenY = (a.y-cameraY)*TILE_HEIGHT+cameraSlideYPixels+DAMAGE_MESSAGE_FLOAT_DOWN_AMOUNT
+                    else:
+                        screenY = (a.y-cameraY)*TILE_HEIGHT+cameraSlideYPixels-DAMAGE_MESSAGE_FLOAT_AMOUNT
+
+                    damageMessages.append((screenX, screenY, damageDealt, DAMAGE_MESSAGE_FRAMES))
+                    a.currentlyKnifing = False
+
         
-        # check if the player is facing any agents
+
+        # check if the player is facing any agents so we can interact with them
+        (playerFaceX, playerFaceY) = level.getPlayer().faceTile()
         a = level.agentAt(playerFaceX, playerFaceY)
         if(a != None):
             if (INTERACT_BUTTON in keysdown):
@@ -347,21 +400,6 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
                 #result = conversation(screen, clock, messageFont, a, smallFont)
                 interactedWithThisFrame = a.getName()
                 keysdown = []
-            if (level.getPlayer().currentlyKnifing):
-
-                # todo make more elaborate
-                damageDealt = level.getPlayer().fighter.baseKnifeDamage
-                
-                a.fighter.dealDamage(damageDealt)
-                
-                screenX = (a.x-cameraX)*TILE_WIDTH + cameraSlideXPixels + TILE_WIDTH/2-4
-                if level.getPlayer().facing == "down":
-                    screenY = (a.y-cameraY)*TILE_HEIGHT+cameraSlideYPixels+DAMAGE_MESSAGE_FLOAT_DOWN_AMOUNT
-                else:
-                    screenY = (a.y-cameraY)*TILE_HEIGHT+cameraSlideYPixels-DAMAGE_MESSAGE_FLOAT_AMOUNT
-
-                damageMessages.append((screenX, screenY, damageDealt, DAMAGE_MESSAGE_FRAMES))
-                level.getPlayer().currentlyKnifing = False
 
         # check if player is facing any objects
         o = level.objectAt(playerFaceX, playerFaceY)

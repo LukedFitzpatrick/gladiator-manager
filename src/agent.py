@@ -1,7 +1,9 @@
 from constants import *
+from ai import *
+import random
 
 class Agent:
-    def __init__(self, name, tiles, attackTiles, fighter, facing="down"):
+    def __init__(self, name, tiles, attackTiles, fighter, ai, facing="down"):
         self.tiles = tiles
         self.fighter = fighter
         self.facing = facing
@@ -14,13 +16,11 @@ class Agent:
         self.following = None
         self.follower = None
         
-        # if(converser):
-        #     self.converser = converser
-        #     self.converser.setAgent(self)
-
         self.attackTiles = attackTiles
 
         self.currTiles = self.tiles
+
+        self.ai = ai
         
         self.facingToTileMap = {}
         self.facingToTileMap["up"] = 0
@@ -35,12 +35,24 @@ class Agent:
 
         # etc.
 
-        
+        self.knifeFrames = 0
+
+    
+    def runAI(self, level):
+        return self.ai.runAI(level)
+    
+    def updateFrames(self):
+        if(self.knifeFrames > 0):
+            self.knifeFrames -= 1
+
+            if(self.knifeFrames == 0):
+                self.endAttack()
 
     def startAttack(self):
-        print "Inside player attack!"
-        self.currTiles = self.attackTiles
-        self.currentlyKnifing = True
+        if(self.knifeFrames == 0):
+            self.knifeFrames = KNIFE_FRAMES
+            self.currTiles = self.attackTiles
+            self.currentlyKnifing = True
 
     def endAttack(self):
         self.currTiles = self.tiles
