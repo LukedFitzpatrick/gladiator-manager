@@ -309,3 +309,18 @@ class Level:
                 return o
 
         return None
+
+
+    def updateDeadAgents(self):
+        stillAlive = []
+        nowDead = []
+        # check for deaths
+        for a in self.agents:
+            if (not a.fighter.alive):
+                nowDead.append(a)
+            else:
+                stillAlive.append(a)
+
+        self.agents = stillAlive
+        return nowDead
+            

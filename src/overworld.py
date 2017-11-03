@@ -27,27 +27,47 @@ class Overworld:
 
 
     # pops up a message and waits for key press        
-    def displayMessage(self, screen, message, clock, options, smallFont, level):
+    def displayMessage(self, message, options, smallFont):
         currentOptionIndex = 0
 
         # wait for user to accept the message
         done = False
         while not done:
-            clock.tick(FRAME_RATE)
-            # display the message box
-            pygame.draw.rect(self.screen, (255,255,255),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 0)
+            self.clock.tick(FRAME_RATE)
 
-            pygame.draw.rect(self.screen, (100,100,100),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 10)
-            pygame.draw.rect(self.screen, (0,0,0),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 5)
+            # display the message box
+            pygame.draw.rect(self.screen,
+                             (255,255,255),
+                             (0,GAME_HEIGHT-MESSAGE_HEIGHT,
+                              MESSAGE_WIDTH,MESSAGE_HEIGHT), 0)
+
+            pygame.draw.rect(self.screen,
+                             (100,100,100),
+                             (0,GAME_HEIGHT-MESSAGE_HEIGHT,
+                              MESSAGE_WIDTH,MESSAGE_HEIGHT), 10)
+
+            pygame.draw.rect(self.screen,
+                             (0,0,0),
+                             (0,GAME_HEIGHT-MESSAGE_HEIGHT,
+                              MESSAGE_WIDTH,MESSAGE_HEIGHT), 5)
 
             # word wrap the message into a label
-            messageRect = pygame.Rect(TEXT_PADDING_X, OVERWORLD_HEIGHT+TEXT_PADDING_Y,
-                                  MESSAGE_WIDTH-(TEXT_PADDING_X*2), MESSAGE_HEIGHT-(TEXT_PADDING_Y*2))
+            messageRect = pygame.Rect(TEXT_PADDING_X,
+                                      OVERWORLD_HEIGHT+TEXT_PADDING_Y,
+                                      MESSAGE_WIDTH-(TEXT_PADDING_X*2),
+                                      MESSAGE_HEIGHT-(TEXT_PADDING_Y*2))
 
-            label = render_textrect(message.text, message.font, messageRect,
-                                message.colour, message.backgroundColour, 0)
+            label = render_textrect(message.text,
+                                    message.font,
+                                    messageRect,
+                                    message.colour,
+                                    message.backgroundColour,
+                                    0)
 
-            self.screen.blit(label, (TEXT_PADDING_X, (OVERWORLD_HEIGHT-MESSAGE_HEIGHT)+TEXT_PADDING_Y))
+            self.screen.blit(label,
+                             (TEXT_PADDING_X,
+                              (OVERWORLD_HEIGHT-MESSAGE_HEIGHT)+TEXT_PADDING_Y))
+
             pygame.display.flip()
 
 
@@ -70,7 +90,6 @@ class Overworld:
 
             for event in pygame.event.get(): 
                 if event.type == pygame.QUIT:                   
-                    # TODO cleanup the exit system
                     pygame.quit()
 
                 elif event.type == pygame.KEYDOWN:
@@ -94,17 +113,13 @@ class Overworld:
         label = font.render("<press enter>", 1, (255, 255, 255))
         self.screen.blit(label, (0, 0))
 
-    def displayObjective(self, screen, font, objective):
-        label = font.render(objective, 1, (255, 255, 255))
-
-        self.screen.blit(label, (GAME_WIDTH-label.get_width(), 0))
 
 
-    def drawDamageMessages(self, screen, damageMessages, font):
+    def drawDamageMessages(self):
         remainingMessages = []
-        for d in damageMessages:
+        for d in self.damageMessages:
             (screenX, screenY, damage, framesLeft, wiggle) = d
-            label = font.render(str(damage), 1, DAMAGE_MESSAGE_COLOUR)
+            label = self.damageMessageFont.render(str(damage), 1, DAMAGE_MESSAGE_COLOUR)
             self.screen.blit(label, (screenX, screenY))
 
             if framesLeft > 1:
@@ -115,7 +130,7 @@ class Overworld:
                      framesLeft-1,
                      wiggle))
 
-        return remainingMessages
+        self.damageMessages = remainingMessages
 
 
 
@@ -150,19 +165,301 @@ class Overworld:
             self.keysdown.remove(TORCH_BUTTON)
             self.level.getPlayer().flipTorch()
 
+
+
+    def handlePlayerMovement(self):
+        # handle key presses
+        if (self.playerMoveLock == 0):
+            if(LEFT_BUTTON in self.keysdown):
+                self.level.getPlayer().translate(-1, 0, self.level)
+                self.playerMoveLock = MOVE_LOCK_FRAMES
+
+            elif(RIGHT_BUTTON in self.keysdown):
+                self.level.getPlayer().translate(1, 0, self.level)
+                self.playerMoveLock = MOVE_LOCK_FRAMES
+
+            elif(UP_BUTTON in self.keysdown):
+                self.level.getPlayer().translate(0, -1, self.level)
+                self.playerMoveLock = MOVE_LOCK_FRAMES
+
+            elif(DOWN_BUTTON in self.keysdown):
+                self.level.getPlayer().translate(0, 1, self.level)
+                self.playerMoveLock = MOVE_LOCK_FRAMES
+        else:
+            self.playerMoveLock = max(self.playerMoveLock-1, 0)
+
+
+
+    def runAI(self):
+        for a in self.level.agents:
+            a.updateFrames()
+            if(a != self.level.getPlayer()):
+                move = a.runAI(self.level)
+                if(move == AI_MOVE_DOWN):
+                    a.translate(0, 1, self.level)
+                elif(move == AI_MOVE_UP):
+                    a.translate(0, -1, self.level)
+                elif(move == AI_MOVE_LEFT):
+                    a.translate(-1, 0, self.level)
+                elif(move == AI_MOVE_RIGHT):
+                    a.translate(1, 0, self.level)
+                elif(move == AI_KNIFE):
+                    a.startAttack()
+        
             
 
+    def updateCamera(self):
+        (oldCameraX, oldCameraY) = (self.cameraX, self.cameraY)
+        self.cameraX = self.level.getPlayer().x - NUM_TILES_X/2
+        self.cameraY = self.level.getPlayer().y - NUM_TILES_Y/2
+
+        if(self.cameraX > oldCameraX):
+            self.cameraSlideXPixels += CAMERA_SLIDE_AMOUNT
+        elif(self.cameraX < oldCameraX):
+            self.cameraSlideXPixels -= CAMERA_SLIDE_AMOUNT
+        if(self.cameraY > oldCameraY):
+            self.cameraSlideYPixels += CAMERA_SLIDE_AMOUNT
+        elif(self.cameraY < oldCameraY):
+            self.cameraSlideYPixels -= CAMERA_SLIDE_AMOUNT
+
+        if(self.cameraSlideXPixels < -CAMERA_SLIDE_SPEED):
+            self.cameraSlideXPixels += CAMERA_SLIDE_SPEED
+        elif(self.cameraSlideXPixels > CAMERA_SLIDE_SPEED):
+            self.cameraSlideXPixels -= CAMERA_SLIDE_SPEED
+        if(self.cameraSlideYPixels < -CAMERA_SLIDE_SPEED):
+            self.cameraSlideYPixels += CAMERA_SLIDE_SPEED
+        elif(self.cameraSlideYPixels > CAMERA_SLIDE_SPEED):
+            self.cameraSlideYPixels -= CAMERA_SLIDE_SPEED
+        
+
+
+    def renderLevelGrid(self):
+        for x in range(self.cameraX-1, self.cameraX+NUM_TILES_X+1):
+            for y in range(self.cameraY-1, self.cameraY+NUM_TILES_Y+1):
+                (screenX, screenY) = self.tileCoordsToScreenCoords(x, y)
+
+                # draw tiles
+                if(self.level.hasTile(x, y)):
+                    t = self.level.getTile(x, y)
+                    self.screen.blit(t.getImage(), (screenX,screenY,TILE_WIDTH,TILE_HEIGHT))
+
+                    # display hitboxes
+                    if(HITBOXES and t.solid):
+                        pygame.draw.rect(self.screen,(255,0,0),
+                                         (screenX,screenY,TILE_WIDTH,TILE_HEIGHT), 1)
+
+                # out of self.level hitboxes
+                else:
+                    if(HITBOXES):
+                        pygame.draw.rect(self.screen,(0,0,255),
+                                         (screenX,screenY,TILE_WIDTH,TILE_HEIGHT), 1)
+        
+
+    def drawObjects(self):
+        for a in self.level.getObjects():
+            projectedX = a.x-self.cameraX
+            projectedY = a.y-self.cameraY
+
+            if(self.isOnScreen(projectedX, projectedY)):
+                (screenX, screenY) = self.tileCoordsToScreenCoords(a.x, a.y)                
+                self.screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
+
+                if(NAMES_ABOVE_AGENTS):
+                    label = smallFont.render(a.getName(), 1, (0, 0, 0))
+                    self.screen.blit(label, (screenX, screenY+TILE_HEIGHT))
+
+
+    def drawAgents(self):
+        for a in self.level.getAgents():
+            projectedX = a.x-self.cameraX
+            projectedY = a.y-self.cameraY
+
+            if(self.isOnScreen(projectedX, projectedY)):
+                (screenX, screenY) = self.tileCoordsToScreenCoords(a.x, a.y)
+
+                self.screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
+
+                if(NAMES_ABOVE_AGENTS):
+                    label = smallFont.render(a.getName(), 1, (0, 0, 0))
+                    self.screen.blit(label, (screenX, screenY+TILE_HEIGHT))
+
+                if(HEALTHBARS):
+                    pygame.draw.rect(self.screen,HEALTHBAR_OUTLINE_COLOUR,
+                                     (screenX+(TILE_WIDTH-HEALTHBAR_WIDTH)/2.0,
+                                      screenY-HEALTHBAR_FLOAT_AMOUNT,
+                                      HEALTHBAR_WIDTH,HEALTHBAR_HEIGHT), 0)
+
+                    pygame.draw.rect(self.screen,HEALTHBAR_FILL_COLOUR,
+                                     (screenX+(TILE_WIDTH-HEALTHBAR_WIDTH)/2.0,
+                                      screenY-HEALTHBAR_FLOAT_AMOUNT,
+                                      HEALTHBAR_WIDTH*(a.fighter.getHealthPercent()/100.0),
+                                      HEALTHBAR_HEIGHT), 0)
+        
+                        
+
+    def handleCombatKeys(self):
+        if(self.level.getPlayer().hasKnife):
+            if(KNIFE_BUTTON in self.keysdown):
+                self.keysdown.remove(KNIFE_BUTTON)
+                self.level.getPlayer().startAttack()
+
+
+
+    def renderLighting(self):
+        if(self.level.lightingOn):
+            # regular ambient lighting
+            filter = pygame.surface.Surface((GAME_WIDTH, GAME_HEIGHT))
+            filter.fill(map(lambda x:255-x, self.level.ambientLight))
+
+
+            # torch lighting
+            (playerFaceX, playerFaceY) = self.level.getPlayer().faceTile()
+            playerX = self.level.getPlayer().x
+            playerY = self.level.getPlayer().y
+
+            deltaX = playerFaceX - playerX
+            deltaY = playerFaceY - playerY
+
+            if(self.level.getPlayer().torchOn):
+                torchX = playerX
+                torchY = playerY
+                lightingDone = False
+
+                while not lightingDone:
+                    if(not self.level.canWalk(torchX, torchY, self.level.getPlayer())):
+                        lightingDone = True
+                        (screenX, screenY) = self.tileCoordsToScreenCoords(torchX, torchY)
+                        pygame.draw.rect(filter, map(lambda x:255-x, self.level.getPlayer().torchLight),
+                                         pygame.Rect(screenX, screenY,
+                                                     TILE_WIDTH, TILE_HEIGHT), 0)            
+                        torchX += deltaX
+                        torchY += deltaY
+
+
+            self.screen.blit(filter, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
+
+
+    def updateHaze(self):
+        if(self.hazeTimer > 0):
+            self.hazeTimer -= 1
+
+
+    def renderHaze(self):
+        if(self.hazeTimer > 0):
+            self.hazeTimer -= 1
+            haze = pygame.surface.Surface((GAME_WIDTH, GAME_HEIGHT))
+            haze.fill(map(lambda x:255-x, self.hazeColour))
+            self.screen.blit(haze, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
+        
+
+    def drawLevelObjective(self):
+        if(self.level.hasObjective):
+            label = self.levelObjectiveFont.render(self.level.objective, 1, (255, 255, 255))
+            self.screen.blit(label, (GAME_WIDTH-label.get_width(), 0))
+
+    def runKnifeCombat(self):
+        # a is the knifer
+        for a in self.level.agents:
+            if (a.currentlyKnifing):
+                (faceX, faceY) = a.faceTile()
+
+                # e is the person we are knifing
+                e = self.level.agentAt(faceX, faceY)
+
+                if(e != None):
+
+                    # make the damage message appear underneath when
+                    # we knife from above: otherwise hard to read
+                    if a.facing == "down":
+                        (screenX, screenY) = self.tileCoordsToScreenCoords(a.x, a.y)
+                        screenX += TILE_WIDTH/2 - 4
+                        screenY += DAMAGE_MESSAGE_FLOAT_DOWN_AMOUNT
+
+                    else:
+                        (screenX, screenY) = self.tileCoordsToScreenCoords(a.x, a.y)
+                        screenX += TILE_WIDTH/2 - 4
+                        screenY -= DAMAGE_MESSAGE_FLOAT_DOWN_AMOUNT
+
+
+                    # check flanking, backstabbing etc.
+                    (enemyFaceX, enemyFaceY) = e.faceTile()
+                    deltaX = abs(enemyFaceX - a.x)
+                    deltaY = abs(enemyFaceY - a.y)
+
+                    # face to face
+                    if(deltaX == 0 and deltaY == 0):
+                        damageDealt = a.fighter.baseKnifeDamage
+                        self.damageMessages.append((screenX, screenY,
+                                                    "SHANK -" + str(damageDealt),
+                                                    DAMAGE_MESSAGE_FRAMES,
+                                                    SHANK_WIGGLE))
+                        self.shakeScreen(SHANK_WIGGLE, DAMAGE_MESSAGE_FRAMES)
+
+                    # back stab
+                    elif((deltaX == 0 and deltaY == 2) or
+                         (deltaX == 2 and deltaY == 0)):
+                        damageDealt = a.fighter.baseKnifeDamage*BACKSTAB_BONUS
+                        self.damageMessages.append((screenX, screenY,
+                                                    "BACKSTAB -" + str(damageDealt),
+                                                    DAMAGE_MESSAGE_FRAMES,
+                                                    BACKSTAB_WIGGLE))
+                        self.shakeScreen(BACKSTAB_WIGGLE, DAMAGE_MESSAGE_FRAMES)
+
+
+                    # flanking
+                    else:
+                        damageDealt = a.fighter.baseKnifeDamage*FLANKING_BONUS
+                        self.damageMessages.append((screenX, screenY,
+                                                    "FLANK -" + str(damageDealt),
+                                                    DAMAGE_MESSAGE_FRAMES,
+                                                    FLANK_WIGGLE))
+                        self.shakeScreen(FLANK_WIGGLE, DAMAGE_MESSAGE_FRAMES)
+
+
+                        
+                    e.fighter.dealDamage(damageDealt)
+
+                    # red haze when we get hit
+                    if(e == self.level.getPlayer()):
+                        self.hazeScreen(DAMAGE_HAZE_COLOUR, 15)
+
+                    a.currentlyKnifing = False
+
+
+    def interactWithObjects(self):
+        interactedWithThisFrame = ""
+        (playerFaceX, playerFaceY) = self.level.getPlayer().faceTile()
+
+        # check if player is facing any objects
+        o = self.level.objectAt(playerFaceX, playerFaceY)
+        if(o != None):
+            self.displayPressEnterMessage(self.screen, self.smallFont, o)
+            if (INTERACT_BUTTON in self.keysdown):
+                m = Message(o.getDialogue(), (0, 0, 0), (255, 255, 255), self.messageFont)
+                self.displayMessage(m, [""], self.smallFont)
+                self.keysdown = []
+                interactedWithThisFrame = o.getName()
+
+        return interactedWithThisFrame
+    
+            
     def playOverworld(self, screen, clock, level, messageFont, smallFont, damageFont):
         self.cameraX = level.getPlayer().x - NUM_TILES_X/2
         self.cameraY = level.getPlayer().y - NUM_TILES_Y/2
 
         self.level = level
         self.screen = screen
+        self.clock = clock
+
+        self.levelObjectiveFont = smallFont
+        self.damageMessageFont = damageFont
+        self.messageFont = messageFont
+        self.smallFont = smallFont
         
         done = False
         
         while not done:
-            clock.tick(FRAME_RATE)
+            self.clock.tick(FRAME_RATE)
 
             # handle events
             for event in pygame.event.get(): 
@@ -175,310 +472,61 @@ class Overworld:
                     if event.key in self.keysdown:
                         self.keysdown.remove(event.key)                
 
-
-            self.updateScreenShake()
-
-            # turn the torch on and off
-
-
+            ################################
             # handle key presses
-            if (self.playerMoveLock == 0):
-                if(LEFT_BUTTON in self.keysdown):
-                    self.level.getPlayer().translate(-1, 0, self.level)
-                    self.playerMoveLock = MOVE_LOCK_FRAMES
+            self.handleTorch()
+            self.handleCombatKeys()
+            self.handlePlayerMovement()
 
-                elif(RIGHT_BUTTON in self.keysdown):
-                    self.level.getPlayer().translate(1, 0, self.level)
-                    self.playerMoveLock = MOVE_LOCK_FRAMES
+            # run the agent AIs and update all agent frame counters
+            self.runAI()
 
-                elif(UP_BUTTON in self.keysdown):
-                    self.level.getPlayer().translate(0, -1, self.level)
-                    self.playerMoveLock = MOVE_LOCK_FRAMES
+            # update display variables: camera, screen shake etc.
+            self.updateCamera()
+            self.updateScreenShake()
+            self.updateHaze()
 
-                elif(DOWN_BUTTON in self.keysdown):
-                    self.level.getPlayer().translate(0, 1, self.level)
-                    self.playerMoveLock = MOVE_LOCK_FRAMES
-            else:
-                self.playerMoveLock = max(self.playerMoveLock-1, 0)
-
-            # run the agent AI/ updating frames
-            for a in self.level.agents:
-                a.updateFrames()
-                if(a != self.level.getPlayer()):
-                    move = a.runAI(self.level)
-                    if(move == AI_MOVE_DOWN):
-                        a.translate(0, 1, self.level)
-                    elif(move == AI_MOVE_UP):
-                        a.translate(0, -1, self.level)
-                    elif(move == AI_MOVE_LEFT):
-                        a.translate(-1, 0, self.level)
-                    elif(move == AI_MOVE_RIGHT):
-                        a.translate(1, 0, self.level)
-                    elif(move == AI_KNIFE):
-                        a.startAttack()
-
-            # make the camera follow the player
-            oldCameraX = self.cameraX
-            self.cameraX = self.level.getPlayer().x - NUM_TILES_X/2
-            oldCameraY = self.cameraY
-            self.cameraY = self.level.getPlayer().y - NUM_TILES_Y/2
-
-
-            if(self.cameraX > oldCameraX):
-                self.cameraSlideXPixels += CAMERA_SLIDE_AMOUNT
-            elif(self.cameraX < oldCameraX):
-                self.cameraSlideXPixels -= CAMERA_SLIDE_AMOUNT
-            if(self.cameraY > oldCameraY):
-                self.cameraSlideYPixels += CAMERA_SLIDE_AMOUNT
-            elif(self.cameraY < oldCameraY):
-                self.cameraSlideYPixels -= CAMERA_SLIDE_AMOUNT
-
-            if(self.cameraSlideXPixels < -CAMERA_SLIDE_SPEED):
-                self.cameraSlideXPixels += CAMERA_SLIDE_SPEED
-            elif(self.cameraSlideXPixels > CAMERA_SLIDE_SPEED):
-                self.cameraSlideXPixels -= CAMERA_SLIDE_SPEED
-            if(self.cameraSlideYPixels < -CAMERA_SLIDE_SPEED):
-                self.cameraSlideYPixels += CAMERA_SLIDE_SPEED
-            elif(self.cameraSlideYPixels > CAMERA_SLIDE_SPEED):
-                self.cameraSlideYPixels -= CAMERA_SLIDE_SPEED
-
-
-
-            # render
+            ################################
+            # render things
+            # draw the background
             self.screen.fill(FILL_COLOUR)
 
+            # pre lighting stuff
+            self.renderLevelGrid()
+            self.drawObjects()
+            self.drawAgents()
+
+            # lighting
+            self.renderLighting()
+            self.renderHaze()
+
+            # post lighting (UI) stuff
+            self.drawLevelObjective()
+            self.drawDamageMessages()
 
 
-            # draw the level grid
-            for x in range(self.cameraX-1, self.cameraX+NUM_TILES_X+1):
-                for y in range(self.cameraY-1, self.cameraY+NUM_TILES_Y+1):
-                    (screenX, screenY) = self.tileCoordsToScreenCoords(x, y)
-
-                    # draw tiles
-                    if(self.level.hasTile(x, y)):
-                        t = self.level.getTile(x, y)
-                        self.screen.blit(t.getImage(), (screenX,screenY,TILE_WIDTH,TILE_HEIGHT))
-
-                        # display hitboxes
-                        if(HITBOXES and t.solid):
-                            pygame.draw.rect(self.screen,(255,0,0),
-                                         (screenX,screenY,TILE_WIDTH,TILE_HEIGHT), 1)
-
-                    # out of self.level hitboxes
-                    else:
-                        if(HITBOXES):
-                            pygame.draw.rect(self.screen,(0,0,255),
-                                             (screenX,screenY,TILE_WIDTH,TILE_HEIGHT), 1)
-
-
-            # now draw the objects
-            for a in self.level.getObjects():
-                projectedX = a.x-self.cameraX
-                projectedY = a.y-self.cameraY
-
-                if(self.isOnScreen(projectedX, projectedY)):
-                    (screenX, screenY) = self.tileCoordsToScreenCoords(a.x, a.y)                
-                    self.screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
-
-                    if(NAMES_ABOVE_AGENTS):
-                        label = smallFont.render(a.getName(), 1, (0, 0, 0))
-                        self.screen.blit(label, (screenX, screenY+TILE_HEIGHT))
-
-
-            # now draw the agents
-            for a in self.level.getAgents():
-                projectedX = a.x-self.cameraX
-                projectedY = a.y-self.cameraY
-
-                if(self.isOnScreen(projectedX, projectedY)):
-                    (screenX, screenY) = self.tileCoordsToScreenCoords(a.x, a.y)
-
-                    self.screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
-
-                    if(NAMES_ABOVE_AGENTS):
-                        label = smallFont.render(a.getName(), 1, (0, 0, 0))
-                        self.screen.blit(label, (screenX, screenY+TILE_HEIGHT))
-
-                    if(HEALTHBARS):
-                        pygame.draw.rect(self.screen,HEALTHBAR_OUTLINE_COLOUR,
-                                         (screenX+(TILE_WIDTH-HEALTHBAR_WIDTH)/2.0,
-                                          screenY-HEALTHBAR_FLOAT_AMOUNT,
-                                          HEALTHBAR_WIDTH,HEALTHBAR_HEIGHT), 0)
-
-                        pygame.draw.rect(self.screen,HEALTHBAR_FILL_COLOUR,
-                                         (screenX+(TILE_WIDTH-HEALTHBAR_WIDTH)/2.0,
-                                          screenY-HEALTHBAR_FLOAT_AMOUNT,
-                                          HEALTHBAR_WIDTH*(a.fighter.getHealthPercent()/100.0),
-                                          HEALTHBAR_HEIGHT), 0)
-
-
-            # combat! Knifing
-            if(self.level.getPlayer().hasKnife):
-                if(KNIFE_BUTTON in self.keysdown):
-                    self.keysdown.remove(KNIFE_BUTTON)
-                    self.level.getPlayer().startAttack()
-
-            # do lighting/torch lighting
-            if(self.level.lightingOn):
-                filter = pygame.surface.Surface((GAME_WIDTH, GAME_HEIGHT))
-                filter.fill(map(lambda x:255-x, self.level.ambientLight))
-
-                (playerFaceX, playerFaceY) = self.level.getPlayer().faceTile()
-                playerX = self.level.getPlayer().x
-                playerY = self.level.getPlayer().y
-
-                deltaX = playerFaceX - playerX
-                deltaY = playerFaceY - playerY
-
-                if(self.level.getPlayer().torchOn):
-                    torchX = playerX
-                    torchY = playerY
-                    lightingDone = False
-
-                    while not lightingDone:
-                        if(not self.level.canWalk(torchX, torchY, self.level.getPlayer())):
-                           lightingDone = True
-                        (screenX, screenY) = self.tileCoordsToScreenCoords(torchX, torchY)
-                        pygame.draw.rect(filter, map(lambda x:255-x, self.level.getPlayer().torchLight),
-                                         pygame.Rect(screenX, screenY,
-                                                     TILE_WIDTH, TILE_HEIGHT), 0)            
-                        torchX += deltaX
-                        torchY += deltaY
-
-
-                self.screen.blit(filter, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
-
-            # haze
-            if(self.hazeTimer > 0):
-                self.hazeTimer -= 1
-                haze = pygame.surface.Surface((GAME_WIDTH, GAME_HEIGHT))
-                haze.fill(map(lambda x:255-x, self.hazeColour))
-                self.screen.blit(haze, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
-
-            else:
-                self.hazeColour = (255, 0, 0)
-
-
-            # drawing objective has to go after lighting
-            if(self.level.hasObjective):
-                self.displayObjective(self.screen, smallFont, self.level.objective)
-
-
-
-
-            interactedWithThisFrame = ""
-
-
-
-            # check knife damage
-            for a in self.level.agents:
-                if (a.currentlyKnifing):
-                    (faceX, faceY) = a.faceTile()
-                    e = self.level.agentAt(faceX, faceY)
-
-                    if(e != None):
-                        if a.facing == "down":
-                            (screenX, screenY) = self.tileCoordsToScreenCoords(a.x, a.y)
-                            screenX += TILE_WIDTH/2 - 4
-                            screenY += DAMAGE_MESSAGE_FLOAT_DOWN_AMOUNT
-
-                        else:
-                            (screenX, screenY) = self.tileCoordsToScreenCoords(a.x, a.y)
-                            screenX += TILE_WIDTH/2 - 4
-                            screenY -= DAMAGE_MESSAGE_FLOAT_DOWN_AMOUNT
-
-                        # check flanking etc.
-                        (enemyFaceX, enemyFaceY) = e.faceTile()
-                        deltaX = abs(enemyFaceX - a.x)
-                        deltaY = abs(enemyFaceY - a.y)
-
-                        # face to face
-                        if(deltaX == 0 and deltaY == 0):
-                            damageDealt = a.fighter.baseKnifeDamage
-                            self.damageMessages.append((screenX, screenY,
-                                                   "SHANK -" + str(damageDealt),
-                                                   DAMAGE_MESSAGE_FRAMES,
-                                                   SHANK_WIGGLE))
-                            self.shakeScreen(SHANK_WIGGLE, DAMAGE_MESSAGE_FRAMES)
-
-                        # back stab
-                        elif((deltaX == 0 and deltaY == 2) or
-                             (deltaX == 2 and deltaY == 0)):
-                            damageDealt = a.fighter.baseKnifeDamage*BACKSTAB_BONUS
-                            self.damageMessages.append((screenX, screenY,
-                                                   "BACKSTAB -" + str(damageDealt),
-                                                   DAMAGE_MESSAGE_FRAMES,
-                                                   BACKSTAB_WIGGLE))
-                            self.shakeScreen(BACKSTAB_WIGGLE, DAMAGE_MESSAGE_FRAMES)
-
-
-                        # flanking
-                        else:
-                            damageDealt = a.fighter.baseKnifeDamage*FLANKING_BONUS
-                            self.damageMessages.append((screenX, screenY,
-                                                   "FLANK -" + str(damageDealt),
-                                                   DAMAGE_MESSAGE_FRAMES,
-                                                   FLANK_WIGGLE))
-                            self.shakeScreen(FLANK_WIGGLE, DAMAGE_MESSAGE_FRAMES)
-
-
-                        e.fighter.dealDamage(damageDealt)
-                        if(e == self.level.getPlayer()):
-                            self.hazeScreen((200,0,0), 15)
-
-
-                        a.currentlyKnifing = False
-
-
-            self.damageMessages = self.drawDamageMessages(self.screen, self.damageMessages, damageFont)
-
-
-            # check if the player is facing any agents so we can interact with them
-            (playerFaceX, playerFaceY) = self.level.getPlayer().faceTile()
-            a = self.level.agentAt(playerFaceX, playerFaceY)
-            if(a != None):
-                if (INTERACT_BUTTON in self.keysdown):
-                    self.displayPressEnterMessage(self.screen, o, smallFont)
-                    #result = conversation(screen, clock, messageFont, a, smallFont)
-                    interactedWithThisFrame = a.getName()
-                    self.keysdown = []
-
-            # check if player is facing any objects
-            o = self.level.objectAt(playerFaceX, playerFaceY)
-            if(o != None):
-                self.displayPressEnterMessage(self.screen, smallFont, o)
-                if (INTERACT_BUTTON in self.keysdown):
-                    m = Message(o.getDialogue(), (0, 0, 0), (255, 255, 255), messageFont)
-                    self.displayMessage(self.screen, m, clock, [""], smallFont, self.level)
-                    self.keysdown = []
-                    interactedWithThisFrame = o.getName()
-
-
-
+            # combat, interactions etc.
+            self.runKnifeCombat()
+            
+            interactedWithThisFrame = self.interactWithObjects()          
+            
 
             pygame.display.flip()
 
             self.totalFrameCounter+=1
 
-            stillAlive = []
-            nowDead = []
-            # check for deaths
-            for a in self.level.agents:
-                if (not a.fighter.alive):
-                    nowDead.append(a)
-                else:
-                    stillAlive.append(a)
+            # update agent list with newly dead agents
+            nowDead = level.updateDeadAgents()
 
-            self.level.agents = stillAlive
-
+            
             # TODO pass now dead to check action triggers eventually
             # trigger any actions
             self.level.checkActionTriggers(interactedWithThisFrame, self.totalFrameCounter)
 
-            # check if the level has any messages for us
+            # display any messages the level has for us
             for s in self.level.getMessages():
                 m = Message(s, (255, 0, 0), (255, 255, 255), messageFont)
-                self.displayMessage(self.screen, m, clock, [""], smallFont, self.level)
+                self.displayMessage(m, [""], smallFont)
                 self.keysdown = []
 
             self.level.emptyMessages()
