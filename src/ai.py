@@ -9,6 +9,7 @@ class AI:
         self.team = team
         self.agent = None
         self.plan = plan
+        self.knifeCooldown = 0
 
     def setAgent(self, agent):
         self.agent = agent
@@ -29,7 +30,11 @@ class AI:
                      (AI_MOVE_LEFT,1), (AI_MOVE_RIGHT,1)])
 
             elif(self.state == AI_STATE_KNIFE):
-                return AI_KNIFE
+                if(self.knifeCooldown == 0):
+                    return AI_KNIFE
+                else:
+                    self.knifeCooldown -= 1
+                    return AI_NOTHING
             
         else:
             self.cooldown -= 1
@@ -39,7 +44,8 @@ class AI:
         if(self.plan == GOON_AI_PLAN):
             if(self.facingEnemyDirectly(level)):
                 self.state = AI_STATE_KNIFE
-                self.cooldown = 0
+                self.knifeCooldown = BUTTON_PRESS_SIMULATION_COOLDOWN
+
             else:
                 self.state = AI_STATE_CLOSE_PATROL
 
