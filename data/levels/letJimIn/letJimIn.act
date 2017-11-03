@@ -25,5 +25,5 @@ begin openDoor
       whenInteractWith FrontDoor
       whenInteractWith FrontDoor2
 
-      changeLevel "jimComesIn"
+      changeLevel jimComesIn
 end openDoor

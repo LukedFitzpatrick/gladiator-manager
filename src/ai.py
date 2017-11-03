@@ -51,6 +51,8 @@ class AI:
             else:
                 self.state = AI_STATE_CLOSE_PATROL
 
+        elif(self.plan == NO_AI_PLAN):
+            self.state = AI_STATE_STAND_STILL
 
     def facingEnemyDirectly(self, level):
         # if an enemy is standing right in front of us...

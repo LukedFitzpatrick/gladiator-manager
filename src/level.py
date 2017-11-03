@@ -87,10 +87,22 @@ class Level:
 
 
             f = Fighter(name + "Fighter", health, knifeDamage)
-            ai = AI(TEAM_EYE_CORPORATION, GOON_AI_PLAN)
+
+            if(agentInfo[AGENT_TEAM_INDEX] == "Ally"):
+                team = TEAM_ALLY
+            else:
+                team = TEAM_EYE_CORPORATION
+
+            if(agentInfo[AGENT_AI_INDEX] == "None"):
+                plan = NO_AI_PLAN
+            else:
+                plan = GOON_AI_PLAN
+                
+            ai = AI(team, plan)
             e = Agent(name, eTiles, eKnifeTiles, f, ai)
             ai.setAgent(e)
 
+            e.facing = agentInfo[AGENT_FACING_INDEX]
             
             e.setPosition(int(agentInfo[AGENT_X_INDEX]),
                           int(agentInfo[AGENT_Y_INDEX]))
@@ -135,6 +147,9 @@ class Level:
             elif(command == ACTION_LANG_START_TORCH):
                 self.getPlayer().setHasTorch(True)                                   
 
+            elif(command == ACTION_LANG_START_TORCH_ON):
+                self.getPlayer().torchOn = True
+                
             elif(command == ACTION_LANG_START_TORCH_LIGHT):
                 self.getPlayer().setTorchLight = (int(arguments[0]),
                                      int(arguments[1]),
