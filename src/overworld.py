@@ -35,10 +35,10 @@ class Overworld:
         while not done:
             clock.tick(FRAME_RATE)
             # display the message box
-            pygame.draw.rect(screen, (255,255,255),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 0)
+            pygame.draw.rect(self.screen, (255,255,255),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 0)
 
-            pygame.draw.rect(screen, (100,100,100),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 10)
-            pygame.draw.rect(screen, (0,0,0),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 5)
+            pygame.draw.rect(self.screen, (100,100,100),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 10)
+            pygame.draw.rect(self.screen, (0,0,0),(0,GAME_HEIGHT-MESSAGE_HEIGHT,MESSAGE_WIDTH,MESSAGE_HEIGHT), 5)
 
             # word wrap the message into a label
             messageRect = pygame.Rect(TEXT_PADDING_X, OVERWORLD_HEIGHT+TEXT_PADDING_Y,
@@ -47,7 +47,7 @@ class Overworld:
             label = render_textrect(message.text, message.font, messageRect,
                                 message.colour, message.backgroundColour, 0)
 
-            screen.blit(label, (TEXT_PADDING_X, (OVERWORLD_HEIGHT-MESSAGE_HEIGHT)+TEXT_PADDING_Y))
+            self.screen.blit(label, (TEXT_PADDING_X, (OVERWORLD_HEIGHT-MESSAGE_HEIGHT)+TEXT_PADDING_Y))
             pygame.display.flip()
 
 
@@ -62,7 +62,7 @@ class Overworld:
 
             label = smallFont.render(optionText, 1, PRESS_ANY_KEY_COLOUR)
 
-            screen.blit(label, (PRESS_ANY_KEY_X+TEXT_PADDING_X,
+            self.screen.blit(label, (PRESS_ANY_KEY_X+TEXT_PADDING_X,
                             GAME_HEIGHT-PRESS_ANY_KEY_HEIGHT-TEXT_PADDING_Y))
 
             pygame.display.flip()
@@ -92,20 +92,20 @@ class Overworld:
 
     def displayPressEnterMessage(self, screen, font, o):
         label = font.render("<press enter>", 1, (255, 255, 255))
-        screen.blit(label, (0, 0))
+        self.screen.blit(label, (0, 0))
 
     def displayObjective(self, screen, font, objective):
         label = font.render(objective, 1, (255, 255, 255))
 
-        screen.blit(label, (GAME_WIDTH-label.get_width(), 0))
+        self.screen.blit(label, (GAME_WIDTH-label.get_width(), 0))
 
     def drawTorchBar(self, screen, torchPercent, font):
         # the outline
-        pygame.draw.rect(screen,(255,255,255),
+        pygame.draw.rect(self.screen,(255,255,255),
                          (TORCH_BAR_X,TORCH_BAR_Y,TORCH_BAR_WIDTH,TORCH_BAR_HEIGHT), 2)
 
         # the fill
-        pygame.draw.rect(screen, TORCH_BAR_COLOUR,
+        pygame.draw.rect(self.screen, TORCH_BAR_COLOUR,
                          (TORCH_BAR_X, TORCH_BAR_Y,
                           TORCH_BAR_WIDTH*(torchPercent/100.0),TORCH_BAR_HEIGHT), 0)
 
@@ -116,7 +116,7 @@ class Overworld:
         for d in damageMessages:
             (screenX, screenY, damage, framesLeft, wiggle) = d
             label = font.render(str(damage), 1, DAMAGE_MESSAGE_COLOUR)
-            screen.blit(label, (screenX, screenY))
+            self.screen.blit(label, (screenX, screenY))
 
             if framesLeft > 1:
                 remainingMessages.append(
@@ -152,6 +152,8 @@ class Overworld:
         self.cameraX = level.getPlayer().x - NUM_TILES_X/2
         self.cameraY = level.getPlayer().y - NUM_TILES_Y/2
 
+        self.screen = screen
+        
         done = False
         
         while not done:
@@ -248,7 +250,7 @@ class Overworld:
 
 
             # render
-            screen.fill(FILL_COLOUR)
+            self.screen.fill(FILL_COLOUR)
 
 
 
@@ -260,17 +262,17 @@ class Overworld:
                     # draw tiles
                     if(level.hasTile(x, y)):
                         t = level.getTile(x, y)
-                        screen.blit(t.getImage(), (screenX,screenY,TILE_WIDTH,TILE_HEIGHT))
+                        self.screen.blit(t.getImage(), (screenX,screenY,TILE_WIDTH,TILE_HEIGHT))
 
                         # display hitboxes
                         if(HITBOXES and t.solid):
-                            pygame.draw.rect(screen,(255,0,0),
+                            pygame.draw.rect(self.screen,(255,0,0),
                                          (screenX,screenY,TILE_WIDTH,TILE_HEIGHT), 1)
 
                     # out of level hitboxes
                     else:
                         if(HITBOXES):
-                            pygame.draw.rect(screen,(0,0,255),
+                            pygame.draw.rect(self.screen,(0,0,255),
                                              (screenX,screenY,TILE_WIDTH,TILE_HEIGHT), 1)
 
 
@@ -281,11 +283,11 @@ class Overworld:
 
                 if(self.isOnScreen(projectedX, projectedY)):
                     (screenX, screenY) = self.tileCoordsToScreenCoords(a.x, a.y)                
-                    screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
+                    self.screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
 
                     if(NAMES_ABOVE_AGENTS):
                         label = smallFont.render(a.getName(), 1, (0, 0, 0))
-                        screen.blit(label, (screenX, screenY+TILE_HEIGHT))
+                        self.screen.blit(label, (screenX, screenY+TILE_HEIGHT))
 
 
             # now draw the agents
@@ -296,19 +298,19 @@ class Overworld:
                 if(self.isOnScreen(projectedX, projectedY)):
                     (screenX, screenY) = self.tileCoordsToScreenCoords(a.x, a.y)
 
-                    screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
+                    self.screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
 
                     if(NAMES_ABOVE_AGENTS):
                         label = smallFont.render(a.getName(), 1, (0, 0, 0))
-                        screen.blit(label, (screenX, screenY+TILE_HEIGHT))
+                        self.screen.blit(label, (screenX, screenY+TILE_HEIGHT))
 
                     if(HEALTHBARS):
-                        pygame.draw.rect(screen,HEALTHBAR_OUTLINE_COLOUR,
+                        pygame.draw.rect(self.screen,HEALTHBAR_OUTLINE_COLOUR,
                                          (screenX+(TILE_WIDTH-HEALTHBAR_WIDTH)/2.0,
                                           screenY-HEALTHBAR_FLOAT_AMOUNT,
                                           HEALTHBAR_WIDTH,HEALTHBAR_HEIGHT), 0)
 
-                        pygame.draw.rect(screen,HEALTHBAR_FILL_COLOUR,
+                        pygame.draw.rect(self.screen,HEALTHBAR_FILL_COLOUR,
                                          (screenX+(TILE_WIDTH-HEALTHBAR_WIDTH)/2.0,
                                           screenY-HEALTHBAR_FLOAT_AMOUNT,
                                           HEALTHBAR_WIDTH*(a.fighter.getHealthPercent()/100.0),
@@ -350,10 +352,10 @@ class Overworld:
 
                     level.chargeTorch(-TORCH_DECREMENT_PER_FRAME)
 
-                screen.blit(filter, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
+                self.screen.blit(filter, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
 
             if(level.torchOn):
-                self.drawTorchBar(screen, level.getTorchPercentage(), smallFont)
+                self.drawTorchBar(self.screen, level.getTorchPercentage(), smallFont)
 
 
             # haze
@@ -361,7 +363,7 @@ class Overworld:
                 self.hazeTimer -= 1
                 haze = pygame.surface.Surface((GAME_WIDTH, GAME_HEIGHT))
                 haze.fill(map(lambda x:255-x, self.hazeColour))
-                screen.blit(haze, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
+                self.screen.blit(haze, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
 
             else:
                 self.hazeColour = (255, 0, 0)
@@ -369,7 +371,7 @@ class Overworld:
 
             # drawing objective has to go after lighting
             if(level.hasObjective):
-                self.displayObjective(screen, smallFont, level.objective)
+                self.displayObjective(self.screen, smallFont, level.objective)
 
 
 
@@ -438,7 +440,7 @@ class Overworld:
                         a.currentlyKnifing = False
 
 
-            self.damageMessages = self.drawDamageMessages(screen, self.damageMessages, damageFont)
+            self.damageMessages = self.drawDamageMessages(self.screen, self.damageMessages, damageFont)
 
 
             # check if the player is facing any agents so we can interact with them
@@ -446,7 +448,7 @@ class Overworld:
             a = level.agentAt(playerFaceX, playerFaceY)
             if(a != None):
                 if (INTERACT_BUTTON in self.keysdown):
-                    self.displayPressEnterMessage(screen, o, smallFont)
+                    self.displayPressEnterMessage(self.screen, o, smallFont)
                     #result = conversation(screen, clock, messageFont, a, smallFont)
                     interactedWithThisFrame = a.getName()
                     self.keysdown = []
@@ -454,10 +456,10 @@ class Overworld:
             # check if player is facing any objects
             o = level.objectAt(playerFaceX, playerFaceY)
             if(o != None):
-                self.displayPressEnterMessage(screen, smallFont, o)
+                self.displayPressEnterMessage(self.screen, smallFont, o)
                 if (INTERACT_BUTTON in self.keysdown):
                     m = Message(o.getDialogue(), (0, 0, 0), (255, 255, 255), messageFont)
-                    self.displayMessage(screen, m, clock, [""], smallFont, level)
+                    self.displayMessage(self.screen, m, clock, [""], smallFont, level)
                     self.keysdown = []
                     interactedWithThisFrame = o.getName()
 
@@ -486,7 +488,7 @@ class Overworld:
             # check if the level has any messages for us
             for s in level.getMessages():
                 m = Message(s, (255, 0, 0), (255, 255, 255), messageFont)
-                self.displayMessage(screen, m, clock, [""], smallFont, level)
+                self.displayMessage(self.screen, m, clock, [""], smallFont, level)
                 self.keysdown = []
 
             level.emptyMessages()
