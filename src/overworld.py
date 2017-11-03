@@ -171,8 +171,8 @@ class Overworld:
 
             if(self.screenShakeTimer > 0):
                 self.screenShakeTimer -= 1
-                self.screenShakeX = random.choice([screenShakeAmount, -screenShakeAmount])
-                self.screenShakeY = random.choice([screenShakeAmount, -screenShakeAmount])
+                self.screenShakeX = random.choice([self.screenShakeAmount, -self.screenShakeAmount])
+                self.screenShakeY = random.choice([self.screenShakeAmount, -self.screenShakeAmount])
             else:
                 (self.screenShakeX, self.screenShakeY) = (0, 0)
 
@@ -369,7 +369,7 @@ class Overworld:
 
             # drawing objective has to go after lighting
             if(level.hasObjective):
-                displayObjective(screen, smallFont, level.objective)
+                self.displayObjective(screen, smallFont, level.objective)
 
 
 
@@ -446,7 +446,7 @@ class Overworld:
             a = level.agentAt(playerFaceX, playerFaceY)
             if(a != None):
                 if (INTERACT_BUTTON in self.keysdown):
-                    displayPressEnterMessage(screen, o, smallFont)
+                    self.displayPressEnterMessage(screen, o, smallFont)
                     #result = conversation(screen, clock, messageFont, a, smallFont)
                     interactedWithThisFrame = a.getName()
                     self.keysdown = []
@@ -454,10 +454,10 @@ class Overworld:
             # check if player is facing any objects
             o = level.objectAt(playerFaceX, playerFaceY)
             if(o != None):
-                displayPressEnterMessage(screen, smallFont, o)
+                self.displayPressEnterMessage(screen, smallFont, o)
                 if (INTERACT_BUTTON in self.keysdown):
                     m = Message(o.getDialogue(), (0, 0, 0), (255, 255, 255), messageFont)
-                    displayMessage(screen, m, clock, [""], smallFont, level)
+                    self.displayMessage(screen, m, clock, [""], smallFont, level)
                     self.keysdown = []
                     interactedWithThisFrame = o.getName()
 
@@ -486,7 +486,7 @@ class Overworld:
             # check if the level has any messages for us
             for s in level.getMessages():
                 m = Message(s, (255, 0, 0), (255, 255, 255), messageFont)
-                displayMessage(screen, m, clock, [""], smallFont, level)
+                self.displayMessage(screen, m, clock, [""], smallFont, level)
                 self.keysdown = []
 
             level.emptyMessages()
