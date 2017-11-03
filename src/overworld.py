@@ -103,16 +103,17 @@ def drawTorchBar(screen, torchPercent, font):
 def drawDamageMessages(screen, damageMessages, font):
     remainingMessages = []
     for d in damageMessages:
-        (screenX, screenY, damage, framesLeft) = d
-        label = font.render("-"+str(damage), 1, DAMAGE_MESSAGE_COLOUR)
+        (screenX, screenY, damage, framesLeft, wiggle) = d
+        label = font.render(str(damage), 1, DAMAGE_MESSAGE_COLOUR)
         screen.blit(label, (screenX, screenY))
 
         if framesLeft > 1:
             remainingMessages.append(
-                (screenX+randint(-DAMAGE_MESSAGE_WIGGLE,DAMAGE_MESSAGE_WIGGLE),
+                (screenX+randint(-wiggle,wiggle),
                  screenY-1,
                  damage,
-                 framesLeft-1))
+                 framesLeft-1,
+                 wiggle))
 
     return remainingMessages
     
@@ -341,7 +342,6 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
         if(level.hasObjective):
             displayObjective(screen, smallFont, level.objective)
 
-        damageMessages = drawDamageMessages(screen, damageMessages, damageFont)
 
             
 
@@ -356,40 +356,58 @@ def playOverworld(screen, clock, level, messageFont, smallFont, damageFont):
                 e = level.agentAt(faceX, faceY)
 
                 if(e != None):
-                    # todo make more elaborate
-
-                    # check flanking etc.
-                    (enemyFaceX, enemyFaceY) = e.faceTile()
-                    deltaX = abs(enemyFaceX - a.x)
-                    deltaY = abs(enemyFaceY - a.y)
-                    print str(deltaX) + " " + str(deltaY)
-
-                    
-                    # face to face
-                    if(deltaX == 0 and deltaY == 0):
-                        damageDealt = a.fighter.baseKnifeDamage
-
-                    # back stab
-                    elif((deltaX == 0 and deltaY == 2) or
-                         (deltaX == 2 and deltaY == 0)):
-                        damageDealt = a.fighter.baseKnifeDamage*BACKSTAB_BONUS
-
-                    # flanking
-                    else:
-                        damageDealt = a.fighter.baseKnifeDamage*FLANKING_BONUS
-                        
-                    e.fighter.dealDamage(damageDealt)
-
                     screenX = (a.x-cameraX)*TILE_WIDTH + cameraSlideXPixels + TILE_WIDTH/2-4
+
                     if a.facing == "down":
                         screenY = (a.y-cameraY)*TILE_HEIGHT+cameraSlideYPixels+DAMAGE_MESSAGE_FLOAT_DOWN_AMOUNT
                     else:
                         screenY = (a.y-cameraY)*TILE_HEIGHT+cameraSlideYPixels-DAMAGE_MESSAGE_FLOAT_AMOUNT
 
-                    damageMessages.append((screenX, screenY, damageDealt, DAMAGE_MESSAGE_FRAMES))
+
+                    
+                    # check flanking etc.
+                    (enemyFaceX, enemyFaceY) = e.faceTile()
+                    deltaX = abs(enemyFaceX - a.x)
+                    deltaY = abs(enemyFaceY - a.y)
+                    
+                    # face to face
+                    if(deltaX == 0 and deltaY == 0):
+                        damageDealt = a.fighter.baseKnifeDamage
+                        damageMessages.append((screenX, screenY,
+                                               "SHANK -" + str(damageDealt),
+                                               DAMAGE_MESSAGE_FRAMES,
+                                               SHANK_WIGGLE))
+
+
+                    # back stab
+                    elif((deltaX == 0 and deltaY == 2) or
+                         (deltaX == 2 and deltaY == 0)):
+                        damageDealt = a.fighter.baseKnifeDamage*BACKSTAB_BONUS
+                        damageMessages.append((screenX, screenY,
+                                               "BACKSTAB -" + str(damageDealt),
+                                               DAMAGE_MESSAGE_FRAMES,
+                                               BACKSTAB_WIGGLE))
+
+
+                    # flanking
+                    else:
+                        damageDealt = a.fighter.baseKnifeDamage*FLANKING_BONUS
+                        damageMessages.append((screenX, screenY,
+                                               "FLANK -" + str(damageDealt),
+                                               DAMAGE_MESSAGE_FRAMES,
+                                               FLANK_WIGGLE))
+
+                        
+                    e.fighter.dealDamage(damageDealt)
+
+
+
+                    #damageMessages.append((screenX, screenY, damageDealt, DAMAGE_MESSAGE_FRAMES))
                     a.currentlyKnifing = False
 
-        
+
+        damageMessages = drawDamageMessages(screen, damageMessages, damageFont)
+
 
         # check if the player is facing any agents so we can interact with them
         (playerFaceX, playerFaceY) = level.getPlayer().faceTile()

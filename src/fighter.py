@@ -8,10 +8,10 @@ class Fighter:
         
     def dealDamage(self, damage):
         self.currentHealth -= damage
-        print self.name + " took " + str(damage) + " damage, hp=" + str(self.currentHealth)
+        #print self.name + " took " + str(damage) + " damage, hp=" + str(self.currentHealth)
         if(self.currentHealth <= 0):
             self.alive = False
-            print self.name + " died."
+            #print self.name + " died."
     
 
     def getHealthPercent(self):
