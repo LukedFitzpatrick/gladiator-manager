@@ -114,7 +114,9 @@ class Level:
             a.hasTorch = True
             a.torchOn = True
             if(a.ai.team == TEAM_EYE_CORPORATION):
-                a.torchLight = (255,100,100)
+                a.torchLight = (random.randint(200, 255),
+                                random.randint(50,150),
+                                random.randint(50,150))
             else:
                 a.torchLight = (255,255,255)
 

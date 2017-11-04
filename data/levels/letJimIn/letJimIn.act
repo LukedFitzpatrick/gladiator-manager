@@ -9,7 +9,6 @@ begin eyesAdjust
       whenInState initial
 
       changeStateTo letJimIn
-      message Your eyes start to adjust...
       objective Let PROF. JIM. in
 end eyesAdjust
 

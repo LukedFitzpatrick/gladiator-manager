@@ -264,7 +264,7 @@ class Overworld:
                 self.screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
 
                 if(NAMES_ABOVE_AGENTS):
-                    label = smallFont.render(a.getName(), 1, (0, 0, 0))
+                    label = self.smallFont.render(a.getName(), 1, (0, 0, 0))
                     self.screen.blit(label, (screenX, screenY+TILE_HEIGHT))
 
 
@@ -279,7 +279,7 @@ class Overworld:
                 self.screen.blit(a.getImage(), (screenX, screenY, a.width, a.height))
 
                 if(NAMES_ABOVE_AGENTS):
-                    label = smallFont.render(a.getName(), 1, (0, 0, 0))
+                    label = self.smallFont.render(a.getName(), 1, (0, 0, 0))
                     self.screen.blit(label, (screenX, screenY+TILE_HEIGHT))
 
         

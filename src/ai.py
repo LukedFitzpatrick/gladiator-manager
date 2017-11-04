@@ -42,7 +42,6 @@ class AI:
                     return AI_NOTHING
 
             elif(self.state == AI_STATE_MOVE_TOWARD):
-                print "in state MOVE_TOWARD"
                 self.incomingAttack = False
                 return self.moveToward(self.moveTowardX, self.moveTowardY, level)
             
@@ -56,9 +55,7 @@ class AI:
         # basic goon AI
         if(self.plan == GOON_AI_PLAN):
             if(self.incomingAttack):
-                print "detecting incoming attack"
                 if(self.agent.faceTile != self.incomingAttackLocation):
-                    print "we're not facing it, move toward!"
                     self.state = AI_STATE_MOVE_TOWARD
                     (self.moveTowardX, self.moveTowardY) = self.incomingAttackLocation
                 else:
