@@ -1,6 +1,6 @@
 startState initial
 startLightState dark
-startLight 100 100 200 
+startLight 50 50 100 
 startTorchLight 255 255 255
 startTorch
 startTorchOn
@@ -44,8 +44,8 @@ end youDie
 
 begin youWin
       whenOnlyPlayerSurvives
-      message You avenge Jim's death
-      message The EYE CORPORATION has created another monster
+      message You avenge Jim's death...
+      message The EYE CORPORATION has created another monster!
       message You head for the EYE CORPORATION HEADQUARTERS to seek out PROF. HOOPER...
       changeStateTo finished
       changeLevel eyeHeadquarters1

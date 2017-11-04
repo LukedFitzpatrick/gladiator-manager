@@ -52,8 +52,8 @@ clock = pygame.time.Clock()
 print "Version " + VERSION
 
 
-nextLevel = "room1"
-#nextLevel = "combatTestZone"
+
+nextLevel = "goonsInTheHouse"
 while True:
     l = Level("data/levels/"+ nextLevel + "/" + nextLevel + ".lvl",
               "data/levels/"+ nextLevel + "/" + nextLevel + ".age",

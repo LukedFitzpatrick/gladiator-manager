@@ -127,7 +127,6 @@ class Action:
 
     
     def performAction(self, level):
-        print "action " + self.name + " triggered!"
         if(self.changesLevel):
             level.changeLevel(self.changeLevelTo)
         
@@ -161,10 +160,8 @@ class Action:
             level.lightState = self.changeLightState
 
         if(self.getsTorch):
-            print "Giving the player a torch"
             level.getPlayer().setHasTorch(True)
 
             
         if(self.getsKnife):
-            print "Giving the player a knife"
             level.getPlayer().setHasKnife(True)

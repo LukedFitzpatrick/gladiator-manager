@@ -78,6 +78,10 @@ class Agent:
     def endAttack(self):
         self.currTiles = self.tiles
         self.currentlyKnifing = False
+
+    def dealDamage(self, damage, fromX, fromY):
+        self.fighter.dealDamage(damage)
+        self.ai.gettingAttackedFrom(fromX, fromY)
         
     def getName(self):
         return self.name

@@ -282,19 +282,23 @@ class Overworld:
                     label = smallFont.render(a.getName(), 1, (0, 0, 0))
                     self.screen.blit(label, (screenX, screenY+TILE_HEIGHT))
 
-                if(HEALTHBARS):
-                    pygame.draw.rect(self.screen,HEALTHBAR_OUTLINE_COLOUR,
-                                     (screenX+(TILE_WIDTH-HEALTHBAR_WIDTH)/2.0,
-                                      screenY-HEALTHBAR_FLOAT_AMOUNT,
-                                      HEALTHBAR_WIDTH,HEALTHBAR_HEIGHT), 0)
-
-                    pygame.draw.rect(self.screen,HEALTHBAR_FILL_COLOUR,
-                                     (screenX+(TILE_WIDTH-HEALTHBAR_WIDTH)/2.0,
-                                      screenY-HEALTHBAR_FLOAT_AMOUNT,
-                                      HEALTHBAR_WIDTH*(a.fighter.getHealthPercent()/100.0),
-                                      HEALTHBAR_HEIGHT), 0)
         
-                        
+    def drawHealthBars(self):
+        if(HEALTHBARS):
+            for a in self.level.getAgents():
+                (screenX, screenY) = self.tileCoordsToScreenCoords(a.x, a.y)
+                
+                pygame.draw.rect(self.screen,HEALTHBAR_OUTLINE_COLOUR,
+                                 (screenX+(TILE_WIDTH-HEALTHBAR_WIDTH)/2.0,
+                                  screenY-HEALTHBAR_FLOAT_AMOUNT,
+                                  HEALTHBAR_WIDTH,HEALTHBAR_HEIGHT), 0)
+
+                pygame.draw.rect(self.screen,HEALTHBAR_FILL_COLOUR,
+                             (screenX+(TILE_WIDTH-HEALTHBAR_WIDTH)/2.0,
+                              screenY-HEALTHBAR_FLOAT_AMOUNT,
+                              HEALTHBAR_WIDTH*(a.fighter.getHealthPercent()/100.0),
+                              HEALTHBAR_HEIGHT), 0)
+    
 
     def handleCombatKeys(self):
         if(self.level.getPlayer().hasKnife):
@@ -312,29 +316,28 @@ class Overworld:
 
 
             # torch lighting
-            if(self.level.getPlayer().torchOn):
-                (playerFaceX, playerFaceY) = self.level.getPlayer().faceTile()
-                playerX = self.level.getPlayer().x
-                playerY = self.level.getPlayer().y
+            for a in self.level.agents:
+                if(a.torchOn):
+                    (playerFaceX, playerFaceY) = a.faceTile()
+                    playerX = a.x
+                    playerY = a.y
 
-                
-                deltaX = playerFaceX - playerX
-                deltaY = playerFaceY - playerY
-                
+                    deltaX = playerFaceX - playerX
+                    deltaY = playerFaceY - playerY
 
-                torchX = playerX
-                torchY = playerY
-                lightingDone = False
+                    torchX = playerX
+                    torchY = playerY
+                    lightingDone = False
 
-                while not lightingDone:
-                    if(not self.level.canWalk(torchX, torchY, self.level.getPlayer())):
-                        lightingDone = True
-                    (screenX, screenY) = self.tileCoordsToScreenCoords(torchX, torchY)
-                    pygame.draw.rect(filter, map(lambda x:255-x, self.level.getPlayer().torchLight),
-                                     pygame.Rect(screenX, screenY,
-                                                 TILE_WIDTH, TILE_HEIGHT), 0)            
-                    torchX += deltaX
-                    torchY += deltaY
+                    while not lightingDone:
+                        if(not self.level.canWalk(torchX, torchY, a)):
+                            lightingDone = True
+                        (screenX, screenY) = self.tileCoordsToScreenCoords(torchX, torchY)
+                        pygame.draw.rect(filter, map(lambda x:255-x, a.torchLight),
+                                         pygame.Rect(screenX, screenY,
+                                                     TILE_WIDTH, TILE_HEIGHT), 0)            
+                        torchX += deltaX
+                        torchY += deltaY
 
 
             self.screen.blit(filter, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
@@ -418,7 +421,7 @@ class Overworld:
 
 
                         
-                    e.fighter.dealDamage(damageDealt)
+                    e.dealDamage(damageDealt, a.x, a.y)
 
                     # red haze when we get hit
                     if(e == self.level.getPlayer()):
@@ -451,7 +454,7 @@ class Overworld:
         self.level = level
         self.screen = screen
         self.clock = clock
-
+        
         self.levelObjectiveFont = smallFont
         self.damageMessageFont = damageFont
         self.messageFont = messageFont
@@ -504,7 +507,7 @@ class Overworld:
             # post lighting (UI) stuff
             self.drawLevelObjective()
             self.drawDamageMessages()
-
+            self.drawHealthBars()
 
             # combat, interactions etc.
             self.runKnifeCombat()

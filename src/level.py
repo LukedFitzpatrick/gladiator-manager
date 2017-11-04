@@ -109,6 +109,16 @@ class Level:
 
             self.agents.append(e)
 
+        # everyone has a torch
+        for a in self.agents[1:]:
+            a.hasTorch = True
+            a.torchOn = True
+            if(a.ai.team == TEAM_EYE_CORPORATION):
+                a.torchLight = (255,100,100)
+            else:
+                a.torchLight = (255,255,255)
+
+            
         self.player = self.agents[0]
         self.player.ai.team = TEAM_ALLY
 
