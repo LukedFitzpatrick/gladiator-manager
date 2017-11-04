@@ -58,6 +58,8 @@ class AI:
         # if an enemy is standing right in front of us...
         (faceX, faceY) = self.agent.faceTile()
 
+
+        
         a = level.agentAt(faceX, faceY)
         if(a != None and a.ai.team != self.team):
             return True

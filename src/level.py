@@ -90,13 +90,13 @@ class Level:
 
             if(agentInfo[AGENT_TEAM_INDEX] == "Ally"):
                 team = TEAM_ALLY
-            else:
+            elif(agentInfo[AGENT_TEAM_INDEX] == "EyeCorporation"):
                 team = TEAM_EYE_CORPORATION
 
-            if(agentInfo[AGENT_AI_INDEX] == "None"):
-                plan = NO_AI_PLAN
-            else:
+            if(agentInfo[AGENT_AI_INDEX] == "Goon"):
                 plan = GOON_AI_PLAN
+            else:
+                plan = NO_AI_PLAN
                 
             ai = AI(team, plan)
             e = Agent(name, eTiles, eKnifeTiles, f, ai)
@@ -185,6 +185,9 @@ class Level:
             elif(command == ACTION_LANG_WHEN_INTERACT_WITH):
                 currAction.addWhenInteractWith(arguments[0])
 
+            elif(command == ACTION_LANG_WHEN_AGENT_DIES):
+                currAction.addWhenAgentDies(arguments[0])
+                
             # set the state we change to when the action happens
             elif(command == ACTION_LANG_CHANGE_STATE_TO):
                 currAction.setChangeStateTo(arguments[0])
@@ -212,10 +215,16 @@ class Level:
                 else:
                     currAction.setObjective(' '.join(arguments))
 
+            elif(command == ACTION_LANG_WHEN_ONLY_PLAYER_SURVIVES):
+                currAction.setWhenOnlyPlayerSurvives(True)
+                
             # get the torch
             elif(command == ACTION_LANG_GET_TORCH):
                 currAction.setGetTorch(True)
-            
+
+            elif(command == ACTION_LANG_GET_KNIFE):
+                currAction.setGetKnife(True)
+                
             # complete an action
             elif(command == ACTION_LANG_END_ACTION):
                 self.actions.append(currAction)
@@ -226,10 +235,10 @@ class Level:
                 print "ERROR: Unrecognised ACTION_LANG line " + line
 
 
-    def checkActionTriggers(self, interactedWith, frameCount):
+    def checkActionTriggers(self, interactedWith, frameCount, deaths):
         (s, ls) = (self.state, self.lightState)
         for a in self.actions:
-            if(a.triggeredBy(s, ls, interactedWith, frameCount)):
+            if(a.triggeredBy(self, s, ls, interactedWith, frameCount, deaths, self.agents)):
                a.performAction(self)
 
     def changeObjectTile(self, objectName, newTileName):

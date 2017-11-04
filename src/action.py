@@ -5,7 +5,10 @@ class Action:
         self.waitingForLightState = False
         self.waitingForInteraction = False
         self.whenInteractWith = []
-
+        self.waitingForDeath = False
+        self.whenAgentDies = []
+        self.whenOnlyPlayerSurvives = False
+        
         self.setsObjective = False
         self.changesState = False
         self.makesMessage = False
@@ -19,6 +22,7 @@ class Action:
         self.setLighting = False
         self.changesLightState = False
         self.getsTorch = False
+        self.getsKnife = False
         self.triggersEveryNFrames = False
 
     # LITTLE TRIGGERS
@@ -37,11 +41,21 @@ class Action:
     def setEveryNFrames(self, frames):
         self.triggersEveryNFrames = True
         self.everyNFrames = frames
+
+    def addWhenAgentDies(self, agent):
+        self.waitingForDeath = True
+        self.whenAgentDies.append(agent)
+
+    def setWhenOnlyPlayerSurvives(self, val):
+        self.whenOnlyPlayerSurvives = val
         
     # ACTIONS
-    def setGetTorch(self, torch):
-        self.getsTorch = True
-    
+    def setGetTorch(self, val):
+        self.getsTorch = val
+
+    def setGetKnife(self, val):
+        self.getsKnife = val
+        
     def setInvertLighting(self, i):
         self.invertLighting = i
 
@@ -80,7 +94,7 @@ class Action:
         self.setsObjective = True
         self.objective = objective
         
-    def triggeredBy(self, state, lightState, interactedWith, frameCount):
+    def triggeredBy(self, level, state, lightState, interactedWith, frameCount, deaths, agents):
         if(self.waitingForState and self.whenInState != state):
             return False
         
@@ -89,6 +103,18 @@ class Action:
 
         if(self.triggersEveryNFrames and frameCount%self.everyNFrames != 0):
             return False
+
+        if(self.waitingForDeath):
+            found = False
+            for d in deaths:
+                if d.name in self.whenAgentDies:
+                    found = True
+            if(not found):
+                return False
+
+        if(self.whenOnlyPlayerSurvives):
+            if(not (len(agents) == 1 and agents[0] == level.getPlayer())):
+                return False
         
         # are we triggered by an interaction?
         if self.waitingForInteraction:
@@ -139,3 +165,6 @@ class Action:
             level.getPlayer().setHasTorch(True)
 
             
+        if(self.getsKnife):
+            print "Giving the player a knife"
+            level.getPlayer().setHasKnife(True)

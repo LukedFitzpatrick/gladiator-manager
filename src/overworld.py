@@ -519,10 +519,8 @@ class Overworld:
             # update agent list with newly dead agents
             nowDead = level.updateDeadAgents()
 
-            
-            # TODO pass now dead to check action triggers eventually
-            # trigger any actions
-            self.level.checkActionTriggers(interactedWithThisFrame, self.totalFrameCounter)
+
+            self.level.checkActionTriggers(interactedWithThisFrame, self.totalFrameCounter, nowDead)
 
             # display any messages the level has for us
             for s in self.level.getMessages():

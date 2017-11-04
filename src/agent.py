@@ -8,7 +8,7 @@ class Agent:
         self.fighter = fighter
         self.facing = facing
 
-        self.hasKnife = True
+        self.hasKnife = False
         self.currentlyKnifing = False
         
         self.recruits = []
@@ -42,6 +42,9 @@ class Agent:
 
         self.knifeFrames = 0
 
+
+    def setHasKnife(self, value):
+        self.hasKnife = value
 
     def setHasTorch(self, value):
         self.hasTorch = value
