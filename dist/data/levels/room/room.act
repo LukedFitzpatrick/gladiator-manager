@@ -1,0 +1,91 @@
+startState initial
+startLightState bright
+startLight 255 255 255
+
+# interacting with the light switch swaps the light
+begin lightSwitchDark
+      whenInLightState bright
+      whenInteractWith Lightswitch
+
+      changeLightStateTo dark
+      setLight 50 50 50
+end lightSwitchDark
+
+begin lightSwitchBright
+      whenInLightState dark
+      whenInteractWith Lightswitch
+
+      changeLightStateTo bright
+      setLight 255 255 255
+end lightSwitchBright
+
+# Looking at the bookshelf makes the phone ring: todo change to door
+begin phoneRing
+      whenInState initial
+      whenInteractWith Door
+
+      changeStateTo phone_ringing
+      message The phone's ringing!
+      message Better pick it up!
+      objective Answer the phone
+      changeObjectTile Deskl roomdesklringing
+      changeObjectDialogue Deskl Hello...?
+end phoneRing
+
+# picking up the phone
+begin pickupPhone
+      whenInState phone_ringing
+      whenInteractWith Deskl
+
+      changeStateTo after_phone
+      objective none
+      message It's me*comma* your next door neighbour PROF. JIM!
+      message I've got a quick favor to ask you!
+      message I need you to take care of something of mine*comma* I'm going away for a while and I need to know its safe
+      message ...
+      message No, nothing dangerous, not like last time. At least it shouldn't be dangerous if I get there soon enough...
+      message You'll do it? Ok*comma* great*comma* fantastic*comma* that's huge of you!
+      message I'll be around some time later tonight.
+      message Ok ... .... Ok - Bye Now!
+
+      changeObjectTile Deskl roomdeskl
+      changeObjectDialogue Deskl Phone's quiet now.
+      changeObjectDialogue Bedt Sigh... You should probably stay up and wait for PROF. JIM.
+      changeObjectDialogue Bedb Sigh... You should probably stay up and wait for PROF. JIM.
+end pickupPhone
+
+
+# reading the computer
+begin readComputer
+      whenInState after_phone
+      whenInteractWith Deskr
+
+      changeStateTo after_computer
+      message Reddit.com: "Controversial AI Company 'EYE CORPORATION' Announces HUGE BREAKTHROUGH"
+      message ... more clickbait ...
+      message -- yawn --
+      changeObjectDialogue Bedt There's no use staying up all night waiting for crazy old PROF. JIM...
+      changeObjectDialogue Bedb There's no use staying up all night waiting for crazy old PROF. JIM...
+end readComputer
+
+# going to sleep
+begin goToSleep
+      whenInState after_computer
+      whenInLightState bright
+      whenInteractWith Bedt
+      whenInteractWith Bedb
+
+      message You can't sleep with the light on...
+end goToSleep
+
+
+# going to sleep
+begin goToSleep
+      whenInState after_computer
+      whenInLightState dark
+      whenInteractWith Bedt
+      whenInteractWith Bedb
+
+      message You fall into a deep sleep...
+      changeLevel room2
+end goToSleep

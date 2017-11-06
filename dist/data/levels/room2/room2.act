@@ -1,0 +1,61 @@
+startState initial
+startLightState dark
+startLight 50 50 50
+startTorchLight 255 255 255
+
+
+begin start
+      whenInState initial
+
+      objective Switch on the light
+      message KNOCK KNOCK KNOCK
+      message ... What time is it?
+      message KNOCK KNOCK KNOCK
+      message ...
+      message That must be PROF. JIM!
+      message I can't see a thing, where's that light switch?
+      changeStateTo find_switch
+end start
+
+
+begin powersOut
+      whenInState find_switch
+      whenInteractWith Lightswitch
+
+      message Huh? It's not working?
+      message Blackout?
+      message I know I have a torch around here somewhere...
+      objective Find the torch
+      changeObjectDialogue Lightswitch It's not working...
+      changeObjectDialogue Drawersb There it is!
+      changeStateTo find_torch
+
+end powersOut
+
+begin foundTorch
+      whenInState find_torch
+      whenInteractWith Drawersb
+
+      message You got the torch!
+      message (press spacebar to turn the torch on and off)
+      getTorch
+      changeStateTo find_jim
+      objective Let PROF. JIM in
+      changeObjectDialogue Door "Coming JIM!"
+      changeObjectDialogue Drawersb Always handy to keep a torch around the house.
+end foundTorch
+
+
+begin callOut
+      whenInState find_jim 
+      everyNFrames 200
+
+      message "KNOCK KNOCK KNOCK"
+      message "WAKE UP! I'M AT THE FRONT DOOR"
+end callOut
+
+begin findJim
+      whenInState find_jim
+      whenInteractWith Door
+      changeLevel letJimIn
+end findJim

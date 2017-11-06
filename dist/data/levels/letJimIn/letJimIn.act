@@ -1,0 +1,29 @@
+startState initial
+startLightState dark
+startLight 50 50 100 
+startTorchLight 255 255 255
+startTorch
+startTorchOn
+
+begin eyesAdjust
+      whenInState initial
+
+      changeStateTo letJimIn
+      objective Let PROF. JIM. in
+end eyesAdjust
+
+begin callOut
+      whenInState letJimIn
+      everyNFrames 200
+
+      message "KNOCK KNOCK KNOCK"
+      message "WAKE UP! I'M AT THE FRONT DOOR"
+end callOut
+
+begin openDoor
+      whenInState letJimIn
+      whenInteractWith FrontDoor
+      whenInteractWith FrontDoor2
+
+      changeLevel jimComesIn
+end openDoor

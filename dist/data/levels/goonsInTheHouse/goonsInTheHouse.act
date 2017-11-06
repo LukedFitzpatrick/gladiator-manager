@@ -1,0 +1,52 @@
+startState initial
+startLightState dark
+startLight 50 50 100 
+startTorchLight 255 255 255
+startTorch
+startTorchOn
+
+
+begin goonDialogue
+      whenInState initial
+      message EYE CORPORATION GOON: Alright, listen up!
+      message EYE CORPORATION GOON: Nobody needs to get hurt!
+      message EYE CORPORATION GOON: Just hand over those papers, PROF.!
+      message PROF. JIM: QUICK, run and get something to defend yourself with, I'll hold them off!
+      changeStateTo findKnife
+      objective Find a weapon
+end goonDialogue
+
+begin getKnife
+      whenInState findKnife
+      whenInteractWith EvaBookshelfl
+      whenInteractWith EvaBookshelfr
+      getKnife
+      message You got the knife!
+      message (press k to knife)
+      changeStateTo fight
+      objective Kill the goons!
+end getKnife
+
+begin jimDies
+      whenAgentDies ProfJim
+      message PROF. JIM is dead...
+      message You: JIIIIIIIIIIIIIIIIIIM! NOOOO!
+      objective Avenge PROF. JIM
+end jimDies
+
+
+begin youDie
+      whenAgentDies You
+      message You died...
+      changeLevel goonsInTheHouse
+end youDie
+
+
+begin youWin
+      whenOnlyPlayerSurvives
+      message You avenge Jim's death...
+      message The EYE CORPORATION has created another monster!
+      message You head for the EYE CORPORATION HEADQUARTERS to seek out PROF. HOOPER...
+      changeStateTo finished
+      changeLevel eyeHeadquarters1
+end youWin

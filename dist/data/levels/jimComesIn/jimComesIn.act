@@ -1,0 +1,26 @@
+startState initial
+startLightState dark
+startLight 50 50 100 
+startTorchLight 255 255 255
+startTorch
+startTorchOn
+
+
+begin jimGivesPapers
+      whenInState initial
+
+      changeStateTo finished
+      message Quick take this!
+      message (PROF. JIM gives you some papers)
+      message I don't have much time, they're on my trail
+      message Guard those papers with your life!
+      message You're now the only hope this world has of stopping that monster: the EYE CORPORATION!
+      message ...
+      message What do you have to do?
+      message Take those papers to the EYE CORPORATION headquarters
+      message My undercover agent PROF. HOOPER will be waiting for you!
+      message HOOPER knows what to do with them, but I'm far too old to risk going back to that place!
+      message ...
+      message I knew I could count on you!
+      changeLevel goonsInTheHouse
+end jimGivesPapers

@@ -3,8 +3,8 @@
 block_cipher = None
 
 
-a = Analysis(['src/gladman.py'],
-             pathex=['/home/luke/gladiator-manager'],
+a = Analysis(['src\\gladman.py'],
+             pathex=['Z:\\home\\luke\\gladiator-manager', '~/.wine/drive_c/Python27/Lib/site-packages'],
              binaries=[],
              datas=[],
              hiddenimports=[],
