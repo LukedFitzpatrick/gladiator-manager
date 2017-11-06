@@ -1,0 +1,20 @@
+startState initial
+startLightState dark
+startLight 100 100 100 
+startTorchLight 255 255 255
+startTorch
+startKnife
+startTorchOn
+
+begin youDie
+      whenAgentDies You
+      message You died...
+      changeLevel level1
+end youDie
+
+begin youWin
+      whenOnlyPlayerSurvives
+      message LEVEL CLEAR
+      changeStateTo finished
+      changeLevel level2
+end youWin

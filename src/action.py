@@ -113,6 +113,9 @@ class Action:
                 return False
 
         if(self.whenOnlyPlayerSurvives):
+            for a in agents:
+                print a.name
+            
             if(not (len(agents) == 1 and agents[0] == level.getPlayer())):
                 return False
         

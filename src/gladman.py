@@ -33,7 +33,11 @@ def loadTiles(tileFile):
 
     return tileIdToTile
 
+pygame.mixer.pre_init(44100, -16, 2, 2048) # setup mixer to avoid sound lag
 pygame.init()
+
+pygame.mixer.init()
+
 
 # load fonts
 messageFont = pygame.font.Font("data/font/pokgen1.ttf", 16)
@@ -53,7 +57,7 @@ print "Version " + VERSION
 
 
 
-nextLevel = "room"
+nextLevel = "level1"
 while True:
     l = Level("data/levels/"+ nextLevel + "/" + nextLevel + ".lvl",
               "data/levels/"+ nextLevel + "/" + nextLevel + ".age",
@@ -62,6 +66,12 @@ while True:
               tileIdToTile)
 
     o = Overworld()
+
+    pygame.mixer.music.load("data/music/" + nextLevel + ".mp3")
+
+    pygame.mixer.music.play(-1)
+
+    
     nextLevel = o.playOverworld(screen, clock, l, messageFont, nameFont, damageFont)
 
 

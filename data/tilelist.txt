@@ -6,6 +6,8 @@
 5,data/tiles/tiles1.png,False,
 6,data/tiles/carpet3.png,False,
 7,data/tiles/carpet4.png,False,
+8,data/tiles/eyetile1.png,False,
+9,data/tiles/eyewall1.png,True,
 roombedtop,data/tiles/roombedtop.png,True,
 roombedbottom,data/tiles/roombedbottom.png,True,
 evabedtop,data/tiles/evabedtop.png,True,

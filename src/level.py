@@ -157,8 +157,11 @@ class Level:
                                      int(arguments[2]))
 
             elif(command == ACTION_LANG_START_TORCH):
-                self.getPlayer().setHasTorch(True)                                   
+                self.getPlayer().setHasTorch(True)
 
+            elif(command == ACTION_LANG_START_KNIFE):
+                self.getPlayer().setHasKnife(True)
+                
             elif(command == ACTION_LANG_START_TORCH_ON):
                 self.getPlayer().torchOn = True
                 
