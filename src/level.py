@@ -35,6 +35,9 @@ class Level:
         self.width = width
         self.height = height
 
+        self.agents = []
+        self.objects = []
+        
         # grid
         self.grid = []
         for y in range(0, height):
@@ -48,12 +51,6 @@ class Level:
 
         # build rooms
         self.pcgBuildSpace()
-        
-        # objects
-        self.objects = []
-
-        # agents
-        self.agents = []
 
         
         # put the player on a random non-solid tile
@@ -117,7 +114,7 @@ class Level:
                 self.pcgJoinRooms(thisRect, prevRooms[-1])
                 prevRooms.append(thisRect)
 
-                spawnEnemiesInsideRoom(thisRect)
+                self.spawnEnemiesInsideRoom(thisRect)
 
                 
     def pcgJoinRooms(self, r1, r2):
@@ -160,7 +157,6 @@ class Level:
         return self.tileIdToTile["tiles1"]
 
 
-
     def spawnEnemiesInsideRoom(self, rect):
         for i in range(0, randint(PCG_ROOM_MIN_ENEMIES, PCG_ROOM_MAX_ENEMIES)):
             (enemyX, enemyY) = (-1, -1)
@@ -173,24 +169,25 @@ class Level:
 
             
     def spawnEnemyAt(self, x, y):
-        sprites = [self.tileIdToTile["goon1up"],
-                   self.tileIdToTile["goon1down"],
-                   self.tileIdToTile["goon1left"],
-                   self.tileIdToTile["goon1right"]]
+        sprites = [self.tileIdToTile["goonup"],
+                   self.tileIdToTile["goondown"],
+                   self.tileIdToTile["goonleft"],
+                   self.tileIdToTile["goonright"]]
 
-        knifeSprites = [self.tileIdToTile["goon1upknife"],
-                        self.tileIdToTile["goon1downknife"],
-                        self.tileIdToTile["goon1leftknife"],
-                        self.tileIdToTile["goon1rightknife"]]
+        knifeSprites = [self.tileIdToTile["goonupknife"],
+                        self.tileIdToTile["goondownknife"],
+                        self.tileIdToTile["goonleftknife"],
+                        self.tileIdToTile["goonrightknife"]]
 
         f = Fighter("GoonFighter", PLAYER_START_HEALTH, PLAYER_KNIFE_DAMAGE)
         ai = AI(TEAM_EYE_CORPORATION, GOON_AI_PLAN)
-        ar = Agent("Goon", sprites, knifeSprites, f, ai)
-
+        a = Agent("Goon", sprites, knifeSprites, f, ai)
+        
         a.facing = choice(["up", "down", "left", "right"])
         a.setPosition(x, y)
         a.hasTorch = True
         a.torchLight = (randint(200, 255),randint(100, 200),randint(100,200))
+        a.torchOn = True
         a.hasKnife = True
 
         self.agents.append(a)
@@ -528,7 +525,7 @@ class Level:
                 return False
 
         for a in self.agents:
-            if (not (a == agent) and not a in agent.getRecruits() and a.x == x and a.y == y):
+            if (not (a == agent) and a.x == x and a.y == y):
                 return False
 
         return True

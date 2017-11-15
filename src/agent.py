@@ -21,6 +21,7 @@ class Agent:
         self.currTiles = self.tiles
 
         self.ai = ai
+        self.ai.setAgent(self)
         
         self.facingToTileMap = {}
         self.facingToTileMap["up"] = 0
