@@ -59,7 +59,8 @@ print "Version " + VERSION
 
 nextLevel = "level1"
 while True:
-    l = Level("data/levels/"+ nextLevel + "/" + nextLevel + ".lvl",
+    l = Level(nextLevel,
+              "data/levels/"+ nextLevel + "/" + nextLevel + ".lvl",
               "data/levels/"+ nextLevel + "/" + nextLevel + ".age",
               "data/levels/"+ nextLevel + "/" + nextLevel + ".obj",
               "data/levels/"+ nextLevel + "/" + nextLevel + ".act",

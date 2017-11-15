@@ -209,9 +209,13 @@ class Overworld:
 
     def updateCamera(self):
         (oldCameraX, oldCameraY) = (self.cameraX, self.cameraY)
-        self.cameraX = self.level.getPlayer().x - NUM_TILES_X/2
-        self.cameraY = self.level.getPlayer().y - NUM_TILES_Y/2
+        self.cameraX = max(0, self.level.getPlayer().x - NUM_TILES_X/2)
+        self.cameraY = max(0, self.level.getPlayer().y - NUM_TILES_Y/2)
 
+
+        self.cameraX = min(self.cameraX, self.level.width-NUM_TILES_X)
+        self.cameraY = min(self.cameraY, self.level.height-NUM_TILES_Y)
+        
         if(CAMERA_SLIDE_ON):
             if(self.cameraX > oldCameraX):
                 self.cameraSlideXPixels += CAMERA_SLIDE_AMOUNT
@@ -306,6 +310,11 @@ class Overworld:
             if(KNIFE_BUTTON in self.keysdown):
                 self.keysdown.remove(KNIFE_BUTTON)
                 self.level.getPlayer().startAttack()
+
+    def handleLevelReset(self):
+        if(DEBUG):
+            if(RESET_BUTTON in self.keysdown):
+                self.level.changeLevel(self.level.name)
 
 
 
@@ -449,8 +458,8 @@ class Overworld:
     
             
     def playOverworld(self, screen, clock, level, messageFont, smallFont, damageFont):
-        self.cameraX = level.getPlayer().x - NUM_TILES_X/2
-        self.cameraY = level.getPlayer().y - NUM_TILES_Y/2
+        self.cameraX = max(0, level.getPlayer().x - NUM_TILES_X/2)
+        self.cameraY = max(0, level.getPlayer().y - NUM_TILES_Y/2)
 
         self.level = level
         self.screen = screen
@@ -482,6 +491,7 @@ class Overworld:
             self.handleTorch()
             self.handleCombatKeys()
             self.handlePlayerMovement()
+            self.handleLevelReset()
 
             # run the agent AIs and update all agent frame counters
             self.runAI()

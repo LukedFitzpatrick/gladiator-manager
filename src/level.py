@@ -7,11 +7,14 @@ from tiles import *
 from object import *
 from action import *
 from fighter import *
+from random import randint
 
 class Level:
-    def __init__(self, levelFile, agentFile, objectFile, actionFile, tileIdToTile):
+    def __init__(self, name, levelFile, agentFile, objectFile, actionFile, tileIdToTile):
         self.tileIdToTile = tileIdToTile
 
+        self.name = name
+        
         self.lightState = ""
         self.state = ""
         self.hasObjective = False
@@ -24,22 +27,27 @@ class Level:
         self.readyForNextLevel = False
 
         #self.readFromFile(levelFile, agentFile, objectFile, actionFile)
-        self.procedurallyBuild(64, 64)
+        self.procedurallyBuild(32, 32)
 
     # todo pass in generation parameters here
     def procedurallyBuild(self, width, height):
         self.width = width
         self.height = height
-        
+
         # grid
         self.grid = []
         for y in range(0, height):
             newline = []
             for x in range(0, width):
-                newline.append(self.tileIdToTile["tiles1"])
+                #newline.append(self.pcgInitialFillTile())
+                newline.append(self.pcgFloorTile())
                 
             self.grid.append(newline)
 
+
+        # build rooms
+        self.pcgBuildSpace()
+        
         # objects
         self.objects = []
 
@@ -54,7 +62,30 @@ class Level:
         self.ambientLight = (200, 200, 200)
         
         
+    def pcgBuildSpace(self):
+        # for now, keep it simple, just rectangles
+        width = randint(PCG_ROOM_WIDTH_MIN, PCG_ROOM_WIDTH_MAX)
+        height = randint(PCG_ROOM_HEIGHT_MIN, PCG_ROOM_HEIGHT_MAX)
+
+        xStart = randint(0, self.width-width)
+        yStart = randint(0, self.height-height)
+
+        # put the space onto the map
+        for x in range(xStart, xStart+width):
+            for y in range(yStart, yStart+height):
+                self.grid[y][x] = self.pcgInitialFillTile()
         
+        
+        
+    # pass in biome etc.?
+    def pcgInitialFillTile(self):
+        return self.tileIdToTile["eyewall1"]
+
+
+    def pcgFloorTile(self):
+        return self.tileIdToTile["tiles1"]
+
+    
     def createPlayerAgent(self, x, y, facing):
         sprites = [self.tileIdToTile["player1up"],
                    self.tileIdToTile["player1down"],
