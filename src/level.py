@@ -72,6 +72,7 @@ class Level:
         
 
 
+
     def pcgFillRectangle(self, xStart, yStart, width, height):
         for x in range(xStart, xStart+width):
             for y in range(yStart, yStart+height):
@@ -116,6 +117,8 @@ class Level:
                 self.pcgJoinRooms(thisRect, prevRooms[-1])
                 prevRooms.append(thisRect)
 
+                spawnEnemiesInsideRoom(thisRect)
+
                 
     def pcgJoinRooms(self, r1, r2):
         (startX, startY) = (int(r1.centerx), int(r1.centery))
@@ -155,6 +158,46 @@ class Level:
 
     def pcgCorridorTile(self):
         return self.tileIdToTile["tiles1"]
+
+
+
+    def spawnEnemiesInsideRoom(self, rect):
+        for i in range(0, randint(PCG_ROOM_MIN_ENEMIES, PCG_ROOM_MAX_ENEMIES)):
+            (enemyX, enemyY) = (-1, -1)
+
+            while(not self.canWalk(enemyX, enemyY, None)):
+                (enemyX, enemyY) = (randint(rect.left, rect.right),
+                                    randint(rect.top, rect.bottom))
+
+            self.spawnEnemyAt(enemyX, enemyY)
+
+            
+    def spawnEnemyAt(self, x, y):
+        sprites = [self.tileIdToTile["goon1up"],
+                   self.tileIdToTile["goon1down"],
+                   self.tileIdToTile["goon1left"],
+                   self.tileIdToTile["goon1right"]]
+
+        knifeSprites = [self.tileIdToTile["goon1upknife"],
+                        self.tileIdToTile["goon1downknife"],
+                        self.tileIdToTile["goon1leftknife"],
+                        self.tileIdToTile["goon1rightknife"]]
+
+        f = Fighter("GoonFighter", PLAYER_START_HEALTH, PLAYER_KNIFE_DAMAGE)
+        ai = AI(TEAM_EYE_CORPORATION, GOON_AI_PLAN)
+        ar = Agent("Goon", sprites, knifeSprites, f, ai)
+
+        a.facing = choice(["up", "down", "left", "right"])
+        a.setPosition(x, y)
+        a.hasTorch = True
+        a.torchLight = (randint(200, 255),randint(100, 200),randint(100,200))
+        a.hasKnife = True
+
+        self.agents.append(a)
+        return a
+        
+
+
     
     def createPlayerAgent(self, x, y, facing):
         sprites = [self.tileIdToTile["player1up"],
