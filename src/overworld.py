@@ -212,23 +212,24 @@ class Overworld:
         self.cameraX = self.level.getPlayer().x - NUM_TILES_X/2
         self.cameraY = self.level.getPlayer().y - NUM_TILES_Y/2
 
-        if(self.cameraX > oldCameraX):
-            self.cameraSlideXPixels += CAMERA_SLIDE_AMOUNT
-        elif(self.cameraX < oldCameraX):
-            self.cameraSlideXPixels -= CAMERA_SLIDE_AMOUNT
-        if(self.cameraY > oldCameraY):
-            self.cameraSlideYPixels += CAMERA_SLIDE_AMOUNT
-        elif(self.cameraY < oldCameraY):
-            self.cameraSlideYPixels -= CAMERA_SLIDE_AMOUNT
+        if(CAMERA_SLIDE_ON):
+            if(self.cameraX > oldCameraX):
+                self.cameraSlideXPixels += CAMERA_SLIDE_AMOUNT
+            elif(self.cameraX < oldCameraX):
+                self.cameraSlideXPixels -= CAMERA_SLIDE_AMOUNT
+            if(self.cameraY > oldCameraY):
+                self.cameraSlideYPixels += CAMERA_SLIDE_AMOUNT
+            elif(self.cameraY < oldCameraY):
+                self.cameraSlideYPixels -= CAMERA_SLIDE_AMOUNT
 
-        if(self.cameraSlideXPixels < -CAMERA_SLIDE_SPEED):
-            self.cameraSlideXPixels += CAMERA_SLIDE_SPEED
-        elif(self.cameraSlideXPixels > CAMERA_SLIDE_SPEED):
-            self.cameraSlideXPixels -= CAMERA_SLIDE_SPEED
-        if(self.cameraSlideYPixels < -CAMERA_SLIDE_SPEED):
-            self.cameraSlideYPixels += CAMERA_SLIDE_SPEED
-        elif(self.cameraSlideYPixels > CAMERA_SLIDE_SPEED):
-            self.cameraSlideYPixels -= CAMERA_SLIDE_SPEED
+            if(self.cameraSlideXPixels < -CAMERA_SLIDE_SPEED):
+                self.cameraSlideXPixels += CAMERA_SLIDE_SPEED
+            elif(self.cameraSlideXPixels > CAMERA_SLIDE_SPEED):
+                self.cameraSlideXPixels -= CAMERA_SLIDE_SPEED
+            if(self.cameraSlideYPixels < -CAMERA_SLIDE_SPEED):
+                self.cameraSlideYPixels += CAMERA_SLIDE_SPEED
+            elif(self.cameraSlideYPixels > CAMERA_SLIDE_SPEED):
+                self.cameraSlideYPixels -= CAMERA_SLIDE_SPEED
         
 
 

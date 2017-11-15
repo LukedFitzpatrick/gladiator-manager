@@ -3,7 +3,7 @@
 2,data/tiles/stone1.png,False,
 3,data/tiles/carpet1.png,False,
 4,data/tiles/carpet2.png,False,
-5,data/tiles/tiles1.png,False,
+tiles1,data/tiles/tiles1.png,False,
 6,data/tiles/carpet3.png,False,
 7,data/tiles/carpet4.png,False,
 8,data/tiles/eyetile1.png,False,

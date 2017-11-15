@@ -67,9 +67,9 @@ while True:
 
     o = Overworld()
 
-    pygame.mixer.music.load("data/music/" + nextLevel + ".mp3")
+    #pygame.mixer.music.load("data/music/" + nextLevel + ".mp3")
 
-    pygame.mixer.music.play(-1)
+    #pygame.mixer.music.play(-1)
 
     
     nextLevel = o.playOverworld(screen, clock, l, messageFont, nameFont, damageFont)

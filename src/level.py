@@ -23,10 +23,65 @@ class Level:
         self.messages = []
         self.readyForNextLevel = False
 
-        self.readFromFile(levelFile, agentFile, objectFile, actionFile)
-        
-    def readFromFile(self, levelFile, agentFile, objectFile, actionFile):
+        #self.readFromFile(levelFile, agentFile, objectFile, actionFile)
+        self.procedurallyBuild(64, 64)
 
+    # todo pass in generation parameters here
+    def procedurallyBuild(self, width, height):
+        self.width = width
+        self.height = height
+        
+        # grid
+        self.grid = []
+        for y in range(0, height):
+            newline = []
+            for x in range(0, width):
+                newline.append(self.tileIdToTile["tiles1"])
+                
+            self.grid.append(newline)
+
+        # objects
+        self.objects = []
+
+        # agents
+        self.player = self.createPlayerAgent(2,2,"down")
+        self.agents = [self.player]
+
+        # actions
+        self.actions = []
+
+        # lighting
+        self.ambientLight = (200, 200, 200)
+        
+        
+        
+    def createPlayerAgent(self, x, y, facing):
+        sprites = [self.tileIdToTile["player1up"],
+                   self.tileIdToTile["player1down"],
+                   self.tileIdToTile["player1left"],
+                   self.tileIdToTile["player1right"]]
+
+        knifeSprites = [self.tileIdToTile["player1upknife"],
+                        self.tileIdToTile["player1downknife"],
+                        self.tileIdToTile["player1leftknife"],
+                        self.tileIdToTile["player1rightknife"]]
+
+        f = Fighter("PlayerFighter", PLAYER_START_HEALTH, PLAYER_KNIFE_DAMAGE)
+        ai = AI(TEAM_ALLY, NO_AI_PLAN)
+        player = Agent("You", sprites, knifeSprites, f, ai)
+
+        player.facing = facing
+        player.setPosition(x, y)
+        player.hasTorch = True
+        player.torchLight = (255,255,255)
+        player.hasKnife = True
+        
+        return player
+
+
+
+    
+    def readFromFile(self, levelFile, agentFile, objectFile, actionFile):
         # build the basic grid
         f = open(levelFile)
         lines = f.readlines()
