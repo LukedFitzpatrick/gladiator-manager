@@ -8,6 +8,7 @@ from object import *
 from action import *
 from fighter import *
 from random import randint
+from random import choice
 
 class Level:
     def __init__(self, name, levelFile, agentFile, objectFile, actionFile, tileIdToTile):
@@ -39,8 +40,8 @@ class Level:
         for y in range(0, height):
             newline = []
             for x in range(0, width):
-                #newline.append(self.pcgInitialFillTile())
-                newline.append(self.pcgFloorTile())
+                newline.append(self.pcgInitialFillTile())
+                #newline.append(self.pcgFloorTile())
                 
             self.grid.append(newline)
 
@@ -52,31 +53,98 @@ class Level:
         self.objects = []
 
         # agents
-        self.player = self.createPlayerAgent(2,2,"down")
-        self.agents = [self.player]
+        self.agents = []
+
+        
+        # put the player on a random non-solid tile
+        (playerX, playerY) = (0, 0)
+        while(not self.canWalk(playerX, playerY, None)):
+            (playerX, playerY) = (randint(0, self.width-1), randint(0, self.height-1))
+
+        self.player = self.createPlayerAgent(playerX,playerY,"down")
+        self.agents.append(self.player)
 
         # actions
         self.actions = []
 
         # lighting
-        self.ambientLight = (200, 200, 200)
+        self.ambientLight = (110, 100, 100)
         
-        
+
+
+    def pcgFillRectangle(self, xStart, yStart, width, height):
+        for x in range(xStart, xStart+width):
+            for y in range(yStart, yStart+height):
+                self.grid[y][x] = self.pcgFloorTile()
+
+    
     def pcgBuildSpace(self):
-        # for now, keep it simple, just rectangles
+        #numRooms = randint(PCG_ROOMS_MIN, PCG_ROOMS_MAX)
+        numRooms = 15
+        
+        # start with a completely random room
         width = randint(PCG_ROOM_WIDTH_MIN, PCG_ROOM_WIDTH_MAX)
         height = randint(PCG_ROOM_HEIGHT_MIN, PCG_ROOM_HEIGHT_MAX)
 
         xStart = randint(0, self.width-width)
         yStart = randint(0, self.height-height)
 
-        # put the space onto the map
-        for x in range(xStart, xStart+width):
-            for y in range(yStart, yStart+height):
-                self.grid[y][x] = self.pcgInitialFillTile()
+        # build the first room
+        self.pcgFillRectangle(xStart, yStart, width, height)
+
+        prevRooms = [pygame.Rect(xStart, yStart, width, height)]
         
+        roomsBuilt = 1
         
+        # build subsequent rooms
+        while(roomsBuilt < numRooms):
+            width = randint(PCG_ROOM_WIDTH_MIN, PCG_ROOM_WIDTH_MAX)
+            height = randint(PCG_ROOM_HEIGHT_MIN, PCG_ROOM_HEIGHT_MAX)
+
+            xStart = randint(0, self.width-width)
+            yStart = randint(0, self.height-height)
+
+            collided = False
+            thisRect = pygame.Rect(xStart, yStart, width, height)
+            for r in prevRooms:
+                if(thisRect.colliderect(r)):
+                    collided = True
+
+            if(not collided):
+                roomsBuilt += 1
+                self.pcgFillRectangle(xStart, yStart, width, height)
+                self.pcgJoinRooms(thisRect, prevRooms[-1])
+                prevRooms.append(thisRect)
+
+                
+    def pcgJoinRooms(self, r1, r2):
+        (startX, startY) = (int(r1.centerx), int(r1.centery))
+        (finishX, finishY) = (int(r2.centerx), int(r2.centery))
         
+        self.pcgBuildCorridor(startX, startY, finishX, finishY)
+
+                
+    def pcgBuildCorridor(self, startX, startY, finishX, finishY):
+        x = startX
+        y = startY
+
+        while(x != finishX or y != finishY):
+            self.grid[y][x] = self.pcgCorridorTile()
+
+            yDiff = finishY - y
+            xDiff = finishX - x
+
+            if(abs(xDiff) > abs(yDiff)):
+                if(x<finishX):
+                    x += 1
+                elif(x>finishX):
+                    x -= 1
+            else:
+                if(y<finishY):
+                    y += 1
+                elif(y > finishY):
+                    y -= 1
+            
     # pass in biome etc.?
     def pcgInitialFillTile(self):
         return self.tileIdToTile["eyewall1"]
@@ -85,6 +153,8 @@ class Level:
     def pcgFloorTile(self):
         return self.tileIdToTile["tiles1"]
 
+    def pcgCorridorTile(self):
+        return self.tileIdToTile["tiles1"]
     
     def createPlayerAgent(self, x, y, facing):
         sprites = [self.tileIdToTile["player1up"],
