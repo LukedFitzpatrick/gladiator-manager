@@ -559,3 +559,9 @@ class Level:
         self.agents = stillAlive
         return nowDead
             
+
+    def placeTileInGrid(self, tile, x, y):
+        # check if we need to expand the grid size
+        
+        self.grid[y][x] = tile
+        # write it to file

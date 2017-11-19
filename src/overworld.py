@@ -114,16 +114,32 @@ class Overworld:
         self.screen.blit(label, (0, 0))
 
 
+    def screenCoordsToTileCoords(self, (screenX, screenY)):
+        tileX = (screenX / TILE_WIDTH) + self.cameraX
+        tileY = (screenY / TILE_HEIGHT) + self.cameraY
+        return (tileX, tileY)
+
+        
     def runLevelEditor(self):
         label = self.smallFont.render("<editing level>", 1, (255, 255, 255))
         self.screen.blit(label, (0, 0))
 
-        for p in self.clickPos:
-            (screenX, screenY) = p
-            tileX = screenX / 32
 
-            
-            print cameraX
+        # outline around where we're placing
+        (tileX, tileY) = self.screenCoordsToTileCoords(pygame.mouse.get_pos())
+
+        (screenX, screenY) = self.tileCoordsToScreenCoords(tileX, tileY)
+        
+        pygame.draw.rect(self.screen,(255,0,0),
+                         (screenX,screenY,TILE_WIDTH,TILE_HEIGHT), 1)
+
+        
+        
+        for p in self.clickPos:
+            (tileX, tileY) = self.screenCoordsToTileCoords(p)
+            self.level.placeTileInGrid(self.currentTileToPlace, tileX, tileY)
+
+
 
 
         for s in self.scrollDowns:
