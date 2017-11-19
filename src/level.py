@@ -27,8 +27,8 @@ class Level:
         self.messages = []
         self.readyForNextLevel = False
 
-        #self.readFromFile(levelFile, agentFile, objectFile, actionFile)
-        self.procedurallyBuild(32, 32)
+        self.readFromFile(levelFile, agentFile, objectFile, actionFile)
+        #self.procedurallyBuild(32, 32)
 
     # todo pass in generation parameters here
     def procedurallyBuild(self, width, height):

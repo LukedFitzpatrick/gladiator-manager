@@ -57,7 +57,7 @@ print "Version " + VERSION
 
 
 
-nextLevel = "level1"
+nextLevel = "room"
 while True:
     l = Level(nextLevel,
               "data/levels/"+ nextLevel + "/" + nextLevel + ".lvl",
