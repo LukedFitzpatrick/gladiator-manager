@@ -135,8 +135,9 @@ class Overworld:
 
         
         
-        for p in self.clickPos:
-            (tileX, tileY) = self.screenCoordsToTileCoords(p)
+
+        if(self.clicking):
+            (tileX, tileY) = self.screenCoordsToTileCoords(pygame.mouse.get_pos())
             self.level.placeTileInGrid(self.currentTileToPlace, tileX, tileY)
 
 
@@ -547,12 +548,14 @@ class Overworld:
         self.clickPos = []
         self.scrollDowns = []
         self.scrollUps = []
+        self.clicking = False
         
         done = False
         
         while not done:
             self.clock.tick(FRAME_RATE)
 
+            self.clicking = False
             # handle events
             for event in pygame.event.get(): 
                 if event.type == pygame.QUIT:
@@ -571,6 +574,10 @@ class Overworld:
                         self.scrollDowns.append(1)
                     else:
                         self.clickPos.append(pygame.mouse.get_pos())
+
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    self.clicking = True
+
 
             ################################
             # handle key presses
