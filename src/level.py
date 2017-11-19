@@ -572,6 +572,9 @@ class Level:
 
     def placeTileInGrid(self, tile, x, y):
         # check if we need to expand the grid size
+
+        (xScrollCount, yScrollCount) = (0, 0)
+        
         while(x < 0):
             newGrid = []
             for line in self.grid:
@@ -579,9 +582,11 @@ class Level:
             x += 1
             
             self.width += 1
+            xScrollCount += 1
             self.moveAllObjects(1, 0)
             self.moveAllAgents(1, 0)
             self.grid = newGrid
+
 
         while(y < 0):
             newLine = []
@@ -591,11 +596,12 @@ class Level:
             y += 1
                 
             self.height += 1
+            yScrollCount += 1
             self.moveAllObjects(0, 1)
             self.moveAllAgents(0, 1)
             self.grid = [newLine] + self.grid
 
-
+            
         if(x >= self.width):
             for i in range(0, (x+1)-self.width):
                 for line in self.grid:
@@ -615,3 +621,4 @@ class Level:
         
 
         self.grid[y][x] = tile
+        return (xScrollCount, yScrollCount)
