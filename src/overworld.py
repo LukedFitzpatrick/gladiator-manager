@@ -119,7 +119,11 @@ class Overworld:
         self.screen.blit(label, (0, 0))
 
         for p in self.clickPos:
-            print p
+            (screenX, screenY) = p
+            tileX = screenX / 32
+
+            
+            print cameraX
 
 
         for s in self.scrollDowns:
