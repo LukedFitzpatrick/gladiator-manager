@@ -23,8 +23,8 @@ class Overworld:
         (self.screenShakeAmount, self.screenShakeTimer) = (0, 0)
         (self.hazeColour, self.hazeTimer) = ((0, 0, 0), 0)
         self.damageMessages = []
-
-
+        self.levelEditMode = False
+        self.currentTileToPlace = None
 
     # pops up a message and waits for key press        
     def displayMessage(self, message, options, smallFont):
@@ -113,6 +113,56 @@ class Overworld:
         label = font.render("<press enter>", 1, (255, 255, 255))
         self.screen.blit(label, (0, 0))
 
+
+    def runLevelEditor(self):
+        label = self.smallFont.render("<editing level>", 1, (255, 255, 255))
+        self.screen.blit(label, (0, 0))
+
+        for p in self.clickPos:
+            print p
+
+
+        for s in self.scrollDowns:
+            self.currentTileIndex += 1
+
+        for s in self.scrollUps:
+            self.currentTileIndex -= 1
+        
+        self.currentTileIndex = self.currentTileIndex % len(self.allTilesList)
+        self.currentTileToPlace = self.allTilesList[self.currentTileIndex]
+            
+        self.scrollDowns = []
+        self.scrollUps = []
+        self.clickPos = []
+            
+        if(LEVEL_EDIT_PROMPT_BUTTON in self.keysdown):
+            choice = raw_input("(t: place tile) :")
+            if(choice == "t"):
+                print "Place tile"
+                tileChoice = raw_input("Which tile? ")
+
+                if(tileChoice.isdigit()):
+                    key = int(tileChoice)
+                else:
+                    key = tileChoice
+
+                if(tileChoice in self.level.tileIdToTile.keys()):
+                    print "Found that!"
+                    self.currentTileToPlace = self.level.tileIdToTile[key]
+                else:
+                    print "Couldn't find that tile."
+
+            else:
+                print "Huh?"
+
+
+        (px, py) = pygame.mouse.get_pos()
+        if(self.currentTileToPlace != None):
+            self.screen.blit(self.currentTileToPlace.getImage(), (px,py,TILE_WIDTH,TILE_HEIGHT))
+
+
+
+        
 
 
     def drawDamageMessages(self):
@@ -316,6 +366,15 @@ class Overworld:
             if(RESET_BUTTON in self.keysdown):
                 self.level.changeLevel(self.level.name)
 
+    def handleLevelEditor(self):
+        if(DEBUG):
+            if(LEVEL_EDIT_BUTTON in self.keysdown):
+                self.levelEditMode = not self.levelEditMode
+                self.keysdown = []
+                self.allTilesList = self.level.tileIdToTile.values()
+                self.currentTileIndex = 0
+                self.currentTileToPlace = self.allTilesList[self.currentTileIndex]
+
 
 
     def renderLighting(self):
@@ -469,6 +528,10 @@ class Overworld:
         self.damageMessageFont = damageFont
         self.messageFont = messageFont
         self.smallFont = smallFont
+
+        self.clickPos = []
+        self.scrollDowns = []
+        self.scrollUps = []
         
         done = False
         
@@ -484,7 +547,15 @@ class Overworld:
                     self.keysdown.append(event.key)
                 elif event.type == pygame.KEYUP:
                     if event.key in self.keysdown:
-                        self.keysdown.remove(event.key)                
+                        self.keysdown.remove(event.key)
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    # scroll up
+                    if event.button == 4:
+                        self.scrollUps.append(1)
+                    elif event.button == 5:
+                        self.scrollDowns.append(1)
+                    else:
+                        self.clickPos.append(pygame.mouse.get_pos())
 
             ################################
             # handle key presses
@@ -492,6 +563,7 @@ class Overworld:
             self.handleCombatKeys()
             self.handlePlayerMovement()
             self.handleLevelReset()
+            self.handleLevelEditor()
 
             # run the agent AIs and update all agent frame counters
             self.runAI()
@@ -520,32 +592,36 @@ class Overworld:
             self.drawDamageMessages()
             self.drawHealthBars()
 
-            # combat, interactions etc.
-            self.runKnifeCombat()
+            if(not self.levelEditMode):
+                # combat, interactions etc.
+                self.runKnifeCombat()
             
-            interactedWithThisFrame = self.interactWithObjects()          
-            
-
-            pygame.display.flip()
-
-            self.totalFrameCounter+=1
-
-            # update agent list with newly dead agents
-            nowDead = level.updateDeadAgents()
+                interactedWithThisFrame = self.interactWithObjects()          
 
 
-            self.level.checkActionTriggers(interactedWithThisFrame, self.totalFrameCounter, nowDead)
+                pygame.display.flip()
 
-            # display any messages the level has for us
-            for s in self.level.getMessages():
-                m = Message(s, (255, 0, 0), (255, 255, 255), messageFont)
-                self.displayMessage(m, [""], smallFont)
-                self.keysdown = []
+                self.totalFrameCounter+=1
 
-            self.level.emptyMessages()
+                # update agent list with newly dead agents
+                nowDead = level.updateDeadAgents()
+
+                self.level.checkActionTriggers(interactedWithThisFrame, self.totalFrameCounter, nowDead)
+
+                # display any messages the level has for us
+                for s in self.level.getMessages():
+                    m = Message(s, (255, 0, 0), (255, 255, 255), messageFont)
+                    self.displayMessage(m, [""], smallFont)
+                    self.keysdown = []
+
+                self.level.emptyMessages()
 
 
-            # see if we can end the level
-            if(self.level.readyForNextLevel):
-                return self.level.nextLevel
+                # see if we can end the level
+                if(self.level.readyForNextLevel):
+                    return self.level.nextLevel
 
+            else:
+                # do the edit level mode stuff
+                self.runLevelEditor()
+                pygame.display.flip()
