@@ -558,10 +558,60 @@ class Level:
 
         self.agents = stillAlive
         return nowDead
-            
+
+
+    def moveAllObjects(self, deltaX, deltaY):
+        for o in self.objects:
+            o.x += deltaX
+            o.y += deltaY
+
+    def moveAllAgents(self, deltaX, deltaY):
+        for a in self.agents:
+            a.x += deltaX
+            a.y += deltaY
 
     def placeTileInGrid(self, tile, x, y):
         # check if we need to expand the grid size
+        while(x < 0):
+            newGrid = []
+            for line in self.grid:
+                newGrid.append([self.tileIdToTile[0]] + line)
+            x += 1
+            
+            self.width += 1
+            self.moveAllObjects(1, 0)
+            self.moveAllAgents(1, 0)
+            self.grid = newGrid
+
+        while(y < 0):
+            newLine = []
+            for i in range(0, self.width):
+                newLine.append(self.tileIdToTile[0])
+
+            y += 1
+                
+            self.height += 1
+            self.moveAllObjects(0, 1)
+            self.moveAllAgents(0, 1)
+            self.grid = [newLine] + self.grid
+
+
+        if(x >= self.width):
+            for i in range(0, (x+1)-self.width):
+                for line in self.grid:
+                    line.append(self.tileIdToTile[0])
+                self.width += 1
+            
+
+        if(y >= self.height):
+            for i in range(0, (y+1)-self.height):
+                newLine = []
+                for i in range(0, self.width):
+                    newLine.append(self.tileIdToTile[0])
+
+                self.grid.append(newLine)
+                self.height += 1
+
         
+
         self.grid[y][x] = tile
-        # write it to file

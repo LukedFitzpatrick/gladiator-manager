@@ -154,27 +154,22 @@ class Overworld:
         self.scrollDowns = []
         self.scrollUps = []
         self.clickPos = []
+
+
+
+        if(LEVEL_EDIT_MOVE_LEFT_BUTTON in self.keysdown):
+            self.cameraX -= 1
+        if(LEVEL_EDIT_MOVE_RIGHT_BUTTON in self.keysdown):
+            self.cameraX += 1
+        if(LEVEL_EDIT_MOVE_UP_BUTTON in self.keysdown):
+            self.cameraY -= 1
+        if(LEVEL_EDIT_MOVE_DOWN_BUTTON in self.keysdown):
+            self.cameraY += 1
+
             
+        
         if(LEVEL_EDIT_PROMPT_BUTTON in self.keysdown):
-            choice = raw_input("(t: place tile) :")
-            if(choice == "t"):
-                print "Place tile"
-                tileChoice = raw_input("Which tile? ")
-
-                if(tileChoice.isdigit()):
-                    key = int(tileChoice)
-                else:
-                    key = tileChoice
-
-                if(tileChoice in self.level.tileIdToTile.keys()):
-                    print "Found that!"
-                    self.currentTileToPlace = self.level.tileIdToTile[key]
-                else:
-                    print "Couldn't find that tile."
-
-            else:
-                print "Huh?"
-
+            pass
 
         (px, py) = pygame.mouse.get_pos()
         if(self.currentTileToPlace != None):
@@ -589,7 +584,8 @@ class Overworld:
             self.runAI()
 
             # update display variables: camera, screen shake etc.
-            self.updateCamera()
+            if(not self.levelEditMode):
+                self.updateCamera()
             self.updateScreenShake()
             self.updateHaze()
 
