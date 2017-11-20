@@ -15,6 +15,7 @@ class Level:
         self.tileIdToTile = tileIdToTile
 
         self.name = name
+        self.levelFile = levelFile
         
         self.lightState = ""
         self.state = ""
@@ -622,3 +623,22 @@ class Level:
 
         self.grid[y][x] = tile
         return (xScrollCount, yScrollCount)
+
+
+
+    def saveGridToFile(self):
+        tileToTileId = {v: k for k, v in self.tileIdToTile.iteritems()}
+        
+        gridString = ""
+        for line in self.grid:
+            for tile in line:
+                gridString += str(tileToTileId[tile])
+                gridString += ","
+            gridString = gridString[0:-1]
+            gridString += "\n"
+
+        f = open(self.levelFile, 'w')
+        f.write(gridString)
+        f.close()
+
+        print "Wrote to file " + self.levelFile

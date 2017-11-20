@@ -133,11 +133,10 @@ class Overworld:
         pygame.draw.rect(self.screen,(255,0,0),
                          (screenX,screenY,TILE_WIDTH,TILE_HEIGHT), 1)
 
-        
-        
 
         if(self.clicking):
             (tileX, tileY) = self.screenCoordsToTileCoords(pygame.mouse.get_pos())
+            print tileX, tileY
             (camXMove, camYMove) = self.level.placeTileInGrid(
                 self.currentTileToPlace, tileX, tileY)
 
@@ -152,7 +151,7 @@ class Overworld:
 
         for s in self.scrollUps:
             self.currentTileIndex -= 1
-        
+
         self.currentTileIndex = self.currentTileIndex % len(self.allTilesList)
         self.currentTileToPlace = self.allTilesList[self.currentTileIndex]
             
@@ -171,10 +170,9 @@ class Overworld:
         if(LEVEL_EDIT_MOVE_DOWN_BUTTON in self.keysdown):
             self.cameraY += 1
 
-            
-        
-        if(LEVEL_EDIT_PROMPT_BUTTON in self.keysdown):
-            pass
+        if(LEVEL_EDIT_SAVE_BUTTON in self.keysdown):
+            self.level.saveGridToFile()
+            self.keysdown.remove(LEVEL_EDIT_SAVE_BUTTON)
 
         (px, py) = pygame.mouse.get_pos()
         if(self.currentTileToPlace != None):
