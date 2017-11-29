@@ -14,6 +14,11 @@ class AI:
         self.incomingAttack = False
         self.incomingAttackLocation = (-1, -1)
 
+        self.alerts = []
+
+        self.hasATargetSquare = False
+        
+        self.statusMark = ""
 
     def setAgent(self, agent):
         self.agent = agent
@@ -51,30 +56,56 @@ class AI:
             self.cooldown -= 1
 
 
+    # choose what state we're in
     def updateState(self, level):
-        # basic goon AI
+        # basic goon AI: stand still, investigate, attack
         if(self.plan == GOON_AI_PLAN):
-            if(self.incomingAttack):
+            # check if we can see the enemy
+            if(self.enemyInDirectLineOfSight(level)):
+                self.alert(level.getPlayer().x, level.getPlayer().y)
+                self.state = AI_STATE_WALK_FORWARD
+                self.statusMark = "!"
+                
+            elif(self.incomingAttack):
+                self.statusMark = "!"
                 if(self.agent.faceTile != self.incomingAttackLocation):
                     self.state = AI_STATE_MOVE_TOWARD
                     (self.moveTowardX, self.moveTowardY) = self.incomingAttackLocation
                 else:
                     self.enterKnifeState()
-                    
+
             elif(self.facingEnemyDirectly(level)):
+                self.statusMark = "!"
                 self.enterKnifeState()
 
-            elif(self.enemyInDirectLineOfSight(level)):
-                self.state = AI_STATE_WALK_FORWARD
-
+            elif(self.hasATargetSquare):
+                self.state = AI_STATE_MOVE_TOWARD
+                if(self.atDestinationSquare()):
+                    self.hasATargetSquare = False
+            
+            elif(len(self.alerts) > 0):
+                alertX, alertY = self.alerts.pop(0)
+                self.state = AI_STATE_MOVE_TOWARD
+                self.moveTowardX = alertX
+                self.moveTowardY = alertY
+                self.statusMark = "?"
+                self.hasATargetSquare = True
+                
             else:
                 self.state = AI_STATE_CLOSE_PATROL
+                self.statusMark = ""
+                #self.state = AI_STATE_STAND_STILL
 
         # agents with no AI
         elif(self.plan == NO_AI_PLAN):
             self.state = AI_STATE_STAND_STILL
 
 
+    def atDestinationSquare(self):
+        return (self.agent.x == self.moveTowardX and
+                self.agent.y == self.moveTowardY)
+
+    
     def moveToward(self, x, y, level):
         if(self.agent.x < x):
             return AI_MOVE_RIGHT
@@ -88,10 +119,11 @@ class AI:
         if(self.agent.y > y):
             return AI_MOVE_UP
 
-        else:
-            return random.choice([AI_MOVE_RIGHT, AI_MOVE_LEFT,
-                                  AI_MOVE_UP, AI_MOVE_DOWN])
-                
+            # return random.choice([AI_MOVE_RIGHT, AI_MOVE_LEFT,
+            #                       AI_MOVE_UP, AI_MOVE_DOWN])
+
+        return AI_NOTHING
+            
     # our agent telling us we're getting attacked from a certain spot
     def gettingAttackedFrom(self, x, y):
         self.incomingAttack = True
@@ -139,6 +171,29 @@ class AI:
         a = level.agentAt(faceX, faceY)
         return self.isEnemyAt(level, faceX, faceY)
 
+
+    def canSee(self, level, x, y):
+        (faceX, faceY) = self.agent.faceTile()
+        (selfX, selfY) = (self.agent.x, self.agent.y)
+        
+        deltaX = faceX - selfX
+        deltaY = faceY - selfY
+
+        searchX = selfX
+        searchY = selfY
+        searchDone = False
+
+        while not searchDone:
+            if(not level.canWalk(searchX, searchY, self.agent)):
+                searchDone = True
+            if(searchX == x and searchY == y):
+                return True
+            searchX += deltaX
+            searchY += deltaY
+
+        return False
+
+    
     def isEnemyAt(self, level, x, y):
         a = level.agentAt(x, y)
         if(a != None and a.ai.team != self.team):
@@ -146,7 +201,12 @@ class AI:
         else:
             return False
 
-    
+
+
+    def alert(self, x, y):
+        # we get an alert at x y
+        self.alerts.append((x,y))
+        
     def randChoiceWithDistribution(self, choices):
         pos = []
         for c in choices:

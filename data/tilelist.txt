@@ -8,6 +8,8 @@
 7,data/tiles/carpet4.png,False,
 8,data/tiles/eyetile1.png,False,
 9,data/tiles/eyewall1.png,True,
+10,data/tiles/grass.png,False,
+11,data/tiles/line.png,False,
 greyfloor,data/tiles/greyfloor.png,False,
 roombedtop,data/tiles/roombedtop.png,True,
 roombedbottom,data/tiles/roombedbottom.png,True,

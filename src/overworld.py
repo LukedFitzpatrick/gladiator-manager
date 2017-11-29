@@ -277,12 +277,17 @@ class Overworld:
 
     def updateCamera(self):
         (oldCameraX, oldCameraY) = (self.cameraX, self.cameraY)
-        self.cameraX = max(0, self.level.getPlayer().x - NUM_TILES_X/2)
-        self.cameraY = max(0, self.level.getPlayer().y - NUM_TILES_Y/2)
+
+        self.cameraX = self.level.getPlayer().x - NUM_TILES_X/2
+        self.cameraY = self.level.getPlayer().y - NUM_TILES_Y/2
+
+        
+        # self.cameraX = max(0, self.level.getPlayer().x - NUM_TILES_X/2)
+        # self.cameraY = max(0, self.level.getPlayer().y - NUM_TILES_Y/2)
 
 
-        self.cameraX = min(self.cameraX, self.level.width-NUM_TILES_X)
-        self.cameraY = min(self.cameraY, self.level.height-NUM_TILES_Y)
+        # self.cameraX = min(self.cameraX, self.level.width-NUM_TILES_X)
+        # self.cameraY = min(self.cameraY, self.level.height-NUM_TILES_Y)
         
         if(CAMERA_SLIDE_ON):
             if(self.cameraX > oldCameraX):
@@ -304,7 +309,15 @@ class Overworld:
                 self.cameraSlideYPixels -= CAMERA_SLIDE_SPEED
         
 
+    def drawAITargetBoxes(self):
+        if(AI_TARGET_BOXES):
+            for a in self.level.agents:
+                if(a.ai.hasATargetSquare):
+                    (screenX, screenY) = self.tileCoordsToScreenCoords(a.ai.moveTowardX, a.ai.moveTowardY)
+                    pygame.draw.rect(self.screen,(255,0,0),
+                                     (screenX,screenY,TILE_WIDTH,TILE_HEIGHT), 5)
 
+                
     def renderLevelGrid(self):
         for x in range(self.cameraX-1, self.cameraX+NUM_TILES_X+1):
             for y in range(self.cameraY-1, self.cameraY+NUM_TILES_Y+1):
@@ -355,6 +368,17 @@ class Overworld:
                     label = self.smallFont.render(a.getName(), 1, (0, 0, 0))
                     self.screen.blit(label, (screenX, screenY+TILE_HEIGHT))
 
+
+    def drawAIStatusMarks(self):
+        if(AI_STATUS_MARKS):
+            for a in self.level.getAgents():
+                (screenX, screenY) = self.tileCoordsToScreenCoords(a.x, a.y)
+
+                label = self.smallFont.render(a.ai.statusMark, 1, (255, 255, 255))
+                self.screen.blit(label, (screenX+10, screenY-16))
+
+
+                    
         
     def drawHealthBars(self):
         if(HEALTHBARS):
@@ -416,13 +440,27 @@ class Overworld:
                     torchY = playerY
                     lightingDone = False
 
+                    
                     while not lightingDone:
                         if(not self.level.canWalk(torchX, torchY, a)):
+                            alertA = self.level.agentAt(torchX, torchY)
+                            if(alertA != None):
+                                alertA.ai.alert(playerX, playerY)
+                                
                             lightingDone = True
+
+                        if(a == self.level.player):
+                            for alertA in self.level.agents:
+                                if(alertA.ai.canSee(self.level, torchX, torchY)):
+                                   alertA.ai.alert(torchX, torchY)
+
+                            
                         (screenX, screenY) = self.tileCoordsToScreenCoords(torchX, torchY)
                         pygame.draw.rect(filter, map(lambda x:255-x, a.torchLight),
                                          pygame.Rect(screenX, screenY,
                                                      TILE_WIDTH, TILE_HEIGHT), 0)            
+
+
                         torchX += deltaX
                         torchY += deltaY
 
@@ -617,7 +655,9 @@ class Overworld:
             self.drawLevelObjective()
             self.drawDamageMessages()
             self.drawHealthBars()
-
+            self.drawAIStatusMarks()
+            self.drawAITargetBoxes()
+            
             if(not self.levelEditMode):
                 # combat, interactions etc.
                 self.runKnifeCombat()
